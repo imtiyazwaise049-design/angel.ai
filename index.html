@@ -14,14 +14,15 @@
 <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
   <div class="glass rounded-3xl p-8 w-full max-w-md text-center">
     <h1 class="text-4xl font-bold mb-2">👼 Angel AI</h1>
-    <p class="text-gray-400 mb-8">Har Sawal ka Jawab</p>
-    <button id="googleLogin" class="w-full bg-white text-black py-3 rounded-full font-bold mb-4">🔐 Gmail se Login</button>
+    <p class="text-gray-400 mb-8">Answer to Every Question</p>
+    <button id="googleLogin" class="w-full bg-white text-black py-3 rounded-full font-bold mb-4">🔐 Login with Gmail</button>
     <div class="my-4 text-gray-500">OR</div>
-    <input id="phoneNumber" placeholder="+91 98765 43210" class="w-full bg-black border border-gray-700 p-3 rounded-full mb-3 text-center">
+    <input id="phoneNumber" placeholder="+971 544 825 007" value="+971544825007" class="w-full bg-black border border-gray-700 p-3 rounded-full mb-3 text-center">
     <div id="recaptcha"></div>
-    <button id="phoneLogin" class="w-full bg-blue-600 py-3 rounded-full font-bold">📱 OTP Bhejo</button>
-    <input id="otpCode" placeholder="OTP daalo" class="w-full bg-black border border-gray-700 p-3 rounded-full mt-3 text-center hidden">
+    <button id="phoneLogin" class="w-full bg-blue-600 py-3 rounded-full font-bold">📱 Send OTP</button>
+    <input id="otpCode" placeholder="Enter OTP" class="w-full bg-black border border-gray-700 p-3 rounded-full mt-3 text-center hidden">
     <button id="verifyOtp" class="w-full bg-green-600 py-3 rounded-full font-bold mt-3 hidden">✅ Verify & Login</button>
+    <p class="text-xs text-gray-500 mt-4">protected by reCAPTCHA</p>
   </div>
 </div>
 <div id="mainApp" class="hidden">
@@ -35,7 +36,7 @@
   <div class="max-w-4xl mx-auto p-4">
     <div class="glass rounded-2xl p-4 mb-4">
       <div class="flex gap-2">
-        <input id="chatInput" placeholder="Kuch bhi pucho..." class="flex-1 bg-black border border-gray-700 p-3 rounded-full">
+        <input id="chatInput" placeholder="Ask anything..." class="flex-1 bg-black border border-gray-700 p-3 rounded-full">
         <button id="sendBtn" class="bg-white text-black px-6 py-3 rounded-full font-bold">Send</button>
       </div>
     </div>
@@ -43,14 +44,14 @@
       <div class="glass rounded-2xl p-4 text-center">
         <h3 class="font-bold mb-3">📸 Image to Image</h3>
         <input type="file" id="imageUpload" accept="image/*" class="hidden">
-        <button onclick="document.getElementById('imageUpload').click()" class="w-full bg-purple-600 py-2 rounded-full">Photo Chuno</button>
-        <input id="imagePrompt" placeholder="Kya banana hai?" class="w-full bg-black border border-gray-700 p-2 rounded-full mt-2 text-sm">
+        <button onclick="document.getElementById('imageUpload').click()" class="w-full bg-purple-600 py-2 rounded-full">Choose Photo</button>
+        <input id="imagePrompt" placeholder="What to create?" class="w-full bg-black border border-gray-700 p-2 rounded-full mt-2 text-sm">
         <button id="generateImageBtn" class="w-full bg-pink-600 py-2 rounded-full mt-2 text-sm">✨ Generate & Save to Library</button>
       </div>
       <div class="glass rounded-2xl p-4">
         <h3 class="font-bold mb-2">Result:</h3>
         <img id="previewImage" class="w-full rounded-xl hidden">
-        <div id="chatResponse" class="text-sm text-gray-300">Yahan jawab ayega...</div>
+        <div id="chatResponse" class="text-sm text-gray-300">Answer will appear here...</div>
       </div>
     </div>
   </div>
@@ -58,7 +59,7 @@
 <div id="libraryModal" class="fixed inset-0 bg-black/90 hidden z-50 p-4 overflow-auto">
   <div class="max-w-4xl mx-auto">
     <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold">📚 Library - Kabhi Delete Nahi Hogi</h2>
+      <h2 class="text-2xl font-bold">📚 Your Library - Never Deleted</h2>
       <button id="closeLibrary" class="glass px-4 py-2 rounded-full">X Close</button>
     </div>
     <div id="libraryGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
@@ -95,34 +96,34 @@ document.getElementById('googleLogin').onclick = async ()=>{
 window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha', {'size':'invisible'});
 document.getElementById('phoneLogin').onclick = async ()=>{
   const phone = document.getElementById('phoneNumber').value;
-  if(!phone.startsWith('+')){alert('Number +91 ke saath likho');return}
+  if(!phone.startsWith('+')){alert('Write number with +971');return}
   try{
     window.confirmationResult = await auth.signInWithPhoneNumber(phone, window.recaptchaVerifier);
-    alert('OTP bhej diya!');
+    alert('OTP Sent!');
     document.getElementById('otpCode').classList.remove('hidden');
     document.getElementById('verifyOtp').classList.remove('hidden');
   }catch(e){alert(e.message)}
 };
 document.getElementById('verifyOtp').onclick = async ()=>{
   const code = document.getElementById('otpCode').value;
-  try{ await window.confirmationResult.confirm(code);}catch(e){alert('Galat OTP')}
+  try{ await window.confirmationResult.confirm(code);}catch(e){alert('Wrong OTP')}
 };
 document.getElementById('logoutBtn').onclick = ()=>auth.signOut();
 document.getElementById('sendBtn').onclick = async ()=>{
   const q = document.getElementById('chatInput').value;
   if(!q) return;
-  document.getElementById('chatResponse').innerText = "Soch raha hun...";
+  document.getElementById('chatResponse').innerText = "Thinking...";
   try{
     const res = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&pretty=1`);
     const data = await res.json();
-    let ans = data.AbstractText || data.RelatedTopics?.[0]?.Text || "Angel AI ka jawab: " + q + " - Ye bohat accha sawal hai!";
+    let ans = data.AbstractText || data.RelatedTopics?.[0]?.Text || "Angel AI Answer: " + q + " - This is a great question!";
     document.getElementById('chatResponse').innerText = ans;
     if(currentUser){
       await db.collection('users').doc(currentUser.uid).collection('library').add({type:'chat', question:q, answer:ans, timestamp: firebase.firestore.FieldValue.serverTimestamp()});
       loadLibrary();
     }
   }catch(e){
-    document.getElementById('chatResponse').innerText = "Mera jawab: " + q + " - Ye ek behtareen sawal hai! Angel AI hamesha aapki madad ke liye hai!";
+    document.getElementById('chatResponse').innerText = "My Answer: " + q + " - This is an excellent question! Angel AI is always here to help you!";
   }
 };
 document.getElementById('imageUpload').onchange = (e)=>{
@@ -136,14 +137,14 @@ document.getElementById('imageUpload').onchange = (e)=>{
 document.getElementById('generateImageBtn').onclick = async ()=>{
   const prompt = document.getElementById('imagePrompt').value;
   const imgSrc = document.getElementById('previewImage').src;
-  if(!imgSrc || imgSrc=="" ){alert('Pehle photo chuno');return}
-  if(!currentUser){alert('Login karo');return}
-  document.getElementById('chatResponse').innerText = "Image Library me save ho rahi hai...";
+  if(!imgSrc || imgSrc=="" ){alert('Choose photo first');return}
+  if(!currentUser){alert('Please login');return}
+  document.getElementById('chatResponse').innerText = "Saving to Library...";
   try{
     await db.collection('users').doc(currentUser.uid).collection('library').add({
       type:'image', prompt:prompt, image: imgSrc, timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
-    alert('📚 Library me Save ho gayi! Ab kabhi delete nahi hogi!');
+    alert('📚 Saved to Library! Will never be deleted!');
     loadLibrary();
   }catch(e){alert(e.message)}
 };
