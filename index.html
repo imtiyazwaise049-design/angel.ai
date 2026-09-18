@@ -3,68 +3,166 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Angel AI - Video & CV Maker</title>
-<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQW5nZWwgQUkiLCJzaG9ydF9uYW1lIjoiQW5nZWwgQUkiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzE3MTcxNyJ9">
-<style>
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI; background:#212121; color:white; display:flex; height:100vh}
-.sidebar{width:260px; background:#171717; padding:15px; display:flex; flex-direction:column}
-.sidebar h2{font-size:16px; margin-bottom:20px}
-.menu-item{padding:12px; border-radius:8px; cursor:pointer; margin-bottom:5px; font-size:14px}
-.menu-item:hover{background:#2f2f2f}
-.menu-item.active{background:#2f2f2f}
-.main{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:20px}
-.chat-box{width:100%; max-width:700px; flex:1; overflow-y:auto; padding-top:40px}
-.msg{background:#2f2f2f; padding:15px; border-radius:15px; margin-bottom:15px; font-size:14px; line-height:1.5}
-.ad-box{background:#fff; color:#000; padding:10px; text-align:center; border-radius:8px; margin:15px 0; font-weight:bold; font-size:12px}
-.input-area{width:100%; max-width:700px; display:flex; gap:10px; background:#2f2f2f; padding:12px; border-radius:25px}
-.input-area input{flex:1; background:transparent; border:none; color:white; outline:none; font-size:15px}
-.input-area button{background:white; color:black; border:none; padding:8px 18px; border-radius:20px; font-weight:bold; cursor:pointer}
-</style>
+<title>Angel AI - Ultimate</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+<style>body{font-family:sans-serif;background:#0f0f0f;color:white} .glass{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1)}</style>
 </head>
-<body>
-<div class="sidebar">
-<h2>Angel AI</h2>
-<div class="menu-item active" onclick="setPrompt('Create video prompt for YouTube')">🎨 Create video prompt</div>
-<div class="menu-item" onclick="setPrompt('Generate video prompt for Instagram Reel')">🎬 Generate Video Prompt</div>
-<div class="menu-item" onclick="setPrompt('Suggest song sound for this video')">🎵 Add Song Sound</div>
-<div class="menu-item" onclick="setPrompt('Replace CV picture with professional background')">🖼️ CV Picture Replacement</div>
-<div class="menu-item" onclick="setPrompt('Create a book cover and content')">📚 Book Banana</div>
-<div class="menu-item" onclick="setPrompt('Make my CV in 1 page professional')">📄 CV Maker</div>
-
-<div style="margin-top:auto">
-<div class="ad-box">YOUR AD HERE - Monetag / AdSense Code Paste Here</div>
-<p style="font-size:11px; color:gray;">Earn money when user clicks ad</p>
+<body class="min-h-screen">
+<div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+  <div class="glass rounded-3xl p-8 w-full max-w-md text-center">
+    <h1 class="text-4xl font-bold mb-2">👼 Angel AI</h1>
+    <p class="text-gray-400 mb-8">Har Sawal ka Jawab</p>
+    <button id="googleLogin" class="w-full bg-white text-black py-3 rounded-full font-bold mb-4">🔐 Gmail se Login</button>
+    <div class="my-4 text-gray-500">OR</div>
+    <input id="phoneNumber" placeholder="+91 98765 43210" class="w-full bg-black border border-gray-700 p-3 rounded-full mb-3 text-center">
+    <div id="recaptcha"></div>
+    <button id="phoneLogin" class="w-full bg-blue-600 py-3 rounded-full font-bold">📱 OTP Bhejo</button>
+    <input id="otpCode" placeholder="OTP daalo" class="w-full bg-black border border-gray-700 p-3 rounded-full mt-3 text-center hidden">
+    <button id="verifyOtp" class="w-full bg-green-600 py-3 rounded-full font-bold mt-3 hidden">✅ Verify & Login</button>
+  </div>
 </div>
+<div id="mainApp" class="hidden">
+  <header class="p-4 flex justify-between items-center border-b border-gray-800">
+    <h1 class="font-bold">👼 Angel AI</h1>
+    <div class="flex gap-3">
+      <button id="libraryBtn" class="glass px-4 py-2 rounded-full">📚 Library</button>
+      <button id="logoutBtn" class="text-red-400">Logout</button>
+    </div>
+  </header>
+  <div class="max-w-4xl mx-auto p-4">
+    <div class="glass rounded-2xl p-4 mb-4">
+      <div class="flex gap-2">
+        <input id="chatInput" placeholder="Kuch bhi pucho..." class="flex-1 bg-black border border-gray-700 p-3 rounded-full">
+        <button id="sendBtn" class="bg-white text-black px-6 py-3 rounded-full font-bold">Send</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-2 gap-4 mb-6">
+      <div class="glass rounded-2xl p-4 text-center">
+        <h3 class="font-bold mb-3">📸 Image to Image</h3>
+        <input type="file" id="imageUpload" accept="image/*" class="hidden">
+        <button onclick="document.getElementById('imageUpload').click()" class="w-full bg-purple-600 py-2 rounded-full">Photo Chuno</button>
+        <input id="imagePrompt" placeholder="Kya banana hai?" class="w-full bg-black border border-gray-700 p-2 rounded-full mt-2 text-sm">
+        <button id="generateImageBtn" class="w-full bg-pink-600 py-2 rounded-full mt-2 text-sm">✨ Generate & Save to Library</button>
+      </div>
+      <div class="glass rounded-2xl p-4">
+        <h3 class="font-bold mb-2">Result:</h3>
+        <img id="previewImage" class="w-full rounded-xl hidden">
+        <div id="chatResponse" class="text-sm text-gray-300">Yahan jawab ayega...</div>
+      </div>
+    </div>
+  </div>
 </div>
-
-<div class="main">
-<div class="chat-box" id="chat">
-<div class="msg">Assalam-o-Alaikum bhai! 👋 Main Angel AI hoon. Left side se koi kaam select karo, main aapke liye ready-made prompt bana dunga jo aap direct use karke paisa kama sakte ho.</div>
-<div class="ad-box" style="width:100%; max-width:700px;">🔥 AD SPACE - Yahan Google Ad Ayega = Aapko Paisa Milega</div>
+<div id="libraryModal" class="fixed inset-0 bg-black/90 hidden z-50 p-4 overflow-auto">
+  <div class="max-w-4xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold">📚 Library - Kabhi Delete Nahi Hogi</h2>
+      <button id="closeLibrary" class="glass px-4 py-2 rounded-full">X Close</button>
+    </div>
+    <div id="libraryGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+  </div>
 </div>
-
-<div class="input-area">
-<input id="userInput" placeholder="Apna idea likho... e.g. Village vlog">
-<button onclick="generate()">Send</button>
-</div>
-</div>
-
 <script>
-function setPrompt(text){
- document.getElementById('userInput').value = text + " - ";
- document.getElementById('userInput').focus();
+const firebaseConfig = {
+  apiKey: "AIzaSyAvkIzeVpFKRcBgUvaZ4qBR8F_2HSH5nZs",
+  authDomain: "angel-ai-fa2d7.firebaseapp.com",
+  projectId: "angel-ai-fa2d7",
+  storageBucket: "angel-ai-fa2d7.firebasestorage.app",
+  messagingSenderId: "701499282972",
+  appId: "1:701499282972:web:1529fa74f91b4548be71d9"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+let currentUser = null;
+auth.onAuthStateChanged(async (user)=>{
+  if(user){
+    currentUser = user;
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('mainApp').classList.remove('hidden');
+    loadLibrary();
+  } else {
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('mainApp').classList.add('hidden');
+  }
+});
+document.getElementById('googleLogin').onclick = async ()=>{
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try{ await auth.signInWithPopup(provider);}catch(e){alert(e.message)}
+};
+window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha', {'size':'invisible'});
+document.getElementById('phoneLogin').onclick = async ()=>{
+  const phone = document.getElementById('phoneNumber').value;
+  if(!phone.startsWith('+')){alert('Number +91 ke saath likho');return}
+  try{
+    window.confirmationResult = await auth.signInWithPhoneNumber(phone, window.recaptchaVerifier);
+    alert('OTP bhej diya!');
+    document.getElementById('otpCode').classList.remove('hidden');
+    document.getElementById('verifyOtp').classList.remove('hidden');
+  }catch(e){alert(e.message)}
+};
+document.getElementById('verifyOtp').onclick = async ()=>{
+  const code = document.getElementById('otpCode').value;
+  try{ await window.confirmationResult.confirm(code);}catch(e){alert('Galat OTP')}
+};
+document.getElementById('logoutBtn').onclick = ()=>auth.signOut();
+document.getElementById('sendBtn').onclick = async ()=>{
+  const q = document.getElementById('chatInput').value;
+  if(!q) return;
+  document.getElementById('chatResponse').innerText = "Soch raha hun...";
+  try{
+    const res = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&pretty=1`);
+    const data = await res.json();
+    let ans = data.AbstractText || data.RelatedTopics?.[0]?.Text || "Angel AI ka jawab: " + q + " - Ye bohat accha sawal hai!";
+    document.getElementById('chatResponse').innerText = ans;
+    if(currentUser){
+      await db.collection('users').doc(currentUser.uid).collection('library').add({type:'chat', question:q, answer:ans, timestamp: firebase.firestore.FieldValue.serverTimestamp()});
+      loadLibrary();
+    }
+  }catch(e){
+    document.getElementById('chatResponse').innerText = "Mera jawab: " + q + " - Ye ek behtareen sawal hai! Angel AI hamesha aapki madad ke liye hai!";
+  }
+};
+document.getElementById('imageUpload').onchange = (e)=>{
+  const file = e.target.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = (ev)=>{document.getElementById('previewImage').src = ev.target.result; document.getElementById('previewImage').classList.remove('hidden');};
+    reader.readAsDataURL(file);
+  }
+};
+document.getElementById('generateImageBtn').onclick = async ()=>{
+  const prompt = document.getElementById('imagePrompt').value;
+  const imgSrc = document.getElementById('previewImage').src;
+  if(!imgSrc || imgSrc=="" ){alert('Pehle photo chuno');return}
+  if(!currentUser){alert('Login karo');return}
+  document.getElementById('chatResponse').innerText = "Image Library me save ho rahi hai...";
+  try{
+    await db.collection('users').doc(currentUser.uid).collection('library').add({
+      type:'image', prompt:prompt, image: imgSrc, timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert('📚 Library me Save ho gayi! Ab kabhi delete nahi hogi!');
+    loadLibrary();
+  }catch(e){alert(e.message)}
+};
+async function loadLibrary(){
+  if(!currentUser) return;
+  const snap = await db.collection('users').doc(currentUser.uid).collection('library').orderBy('timestamp','desc').get();
+  const grid = document.getElementById('libraryGrid');
+  grid.innerHTML = "";
+  snap.forEach(doc=>{
+    const d = doc.data();
+    if(d.type=='image'){
+      grid.innerHTML += `<div class="glass rounded-xl p-2"><img src="${d.image}" class="w-full rounded-lg"><p class="text-xs mt-1">${d.prompt||''}</p></div>`;
+    } else {
+      grid.innerHTML += `<div class="glass rounded-xl p-3"><p class="text-xs font-bold">Q: ${d.question}</p><p class="text-xs text-gray-400 mt-1">${d.answer?.substring(0,100)}...</p></div>`;
+    }
+  });
 }
-function generate(){
- let input = document.getElementById('userInput').value;
- if(!input) return;
- let chat = document.getElementById('chat');
- chat.innerHTML += `<div class="msg" style="background:#444"><b>You:</b> ${input}</div>`;
- 
- let result = `✅ <b>Ready Prompt for Client:</b><br><br> "${input} , cinematic 4K, ultra realistic, trending style, professional lighting, 8k detail --ar 16:9"<br><br>👉 Isko aap Picsart / CapCut / Canva me paste karo aur client ko 150 Rs me de do.`;
- 
- setTimeout(()=>{ chat.innerHTML += `<div class="msg">${result}</div><div class="ad-box" style="width:100%">AD - Click = Earning</div>`; chat.scrollTop = chat.scrollHeight; }, 500);
- document.getElementById('userInput').value = "";
-}
+document.getElementById('libraryBtn').onclick = ()=>{document.getElementById('libraryModal').classList.remove('hidden'); loadLibrary();};
+document.getElementById('closeLibrary').onclick = ()=>document.getElementById('libraryModal').classList.add('hidden');
 </script>
 </body>
 </html>
