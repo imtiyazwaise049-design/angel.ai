@@ -1,33 +1,134 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Angel AI by Imtiyaz</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0a0a0f;color:#fff;font-family:sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden}.topbar{height:56px;background:#0a0a0f;border-bottom:1px solid #1a1a25;display:flex;align-items:center;justify-content:space-between;padding:0 14px}.logo{font-weight:800;font-size:20px;background:linear-gradient(90deg,#ff6ec7,#a86bff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}.chat-view{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px}.msg{display:flex;gap:10px;max-width:88%}.msg.user{align-self:flex-end}.bub{padding:11px 15px;border-radius:18px;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word}.user .bub{background:#2a2a40;border-bottom-right-radius:4px}.bot .bub{background:#181825;border:1px solid #222233;border-bottom-left-radius:4px}.input-wrap{padding:10px 12px 14px;background:#0a0a0f;border-top:1px solid #1a1a25}.input-box{background:#181825;border:1px solid #2a2a3f;border-radius:26px;display:flex;align-items:center;padding:6px 8px 6px 14px;gap:8px}.input-box textarea{background:transparent;border:0;color:#fff;flex:1;outline:none;resize:none;font-size:15px;padding:8px 0;max-height:90px}.send{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#ff6ec7,#a86bff);border:0;color:#fff;font-size:18px;cursor:pointer}.bottom-nav{height:64px;background:#0f0f18;border-top:1px solid #1a1a25;display:flex;justify-content:space-around;align-items:center}.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:#666;font-size:10px;cursor:pointer}.nav-item.active{color:#ff6ec7}.nav-item span{font-size:20px}</style></head><body>
-<div class="topbar"><div style="display:flex;gap:10px;align-items:center"><span>☰</span><span class="logo">angel.ai</span><span style="font-size:10px;color:#555">by Imtiyaz</span></div><button style="border:1px solid #a86bff;background:transparent;color:#fff;padding:6px 14px;border-radius:20px" onclick="alert('Install: 3 dots > Add to Home Screen')">Get App</button></div>
-<div class="chat-view" id="chat"></div>
-<div class="input-wrap"><div class="input-box"><textarea id="inp" placeholder="Ask anything..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"></textarea><button class="send" onclick="send()">↑</button></div></div>
-<div class="bottom-nav"><div class="nav-item active"><span>🔍</span>Explore</div><div class="nav-item"><span>💬</span>Chat</div><div class="nav-item"><span>🖼️</span>Gallery</div><div class="nav-item"><span>👤</span>Profile</div></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Angel AI by Imtiyaz - Family Friendly</title>
+<meta name="description" content="Angel AI by Imtiyaz - Your friendly assistant for chat, images, and DPs">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:58px;background:#0a0a0f;border-bottom:1px solid #1e1e32;display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0}
+.logo-area{display:flex;align-items:center;gap:10px}
+.logo{font-weight:900;font-size:22px;background:linear-gradient(90deg,#ff6ec7 0%,#a86bff 50%,#6b7cff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-0.5px}
+.by{font-size:10px;color:#555;font-weight:600;margin-top:2px}
+.getapp-btn{border:1.5px solid #a86bff;color:#fff;padding:8px 18px;border-radius:22px;background:linear-gradient(135deg,rgba(168,107,255,0.15),rgba(255,110,199,0.15));font-size:13px;font-weight:700;cursor:pointer}
+.main-wrapper{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.chat-container{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth}
+.message-row{display:flex;gap:10px;max-width:92%;animation:fadeIn 0.3s ease}
+.message-row.user{align-self:flex-end;flex-direction:row-reverse}
+.message-row.bot{align-self:flex-start}
+.avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-top:2px}
+.user .avatar{background:#2a2a45}
+.bot .avatar{background:linear-gradient(135deg,#ff6ec7,#a86bff)}
+.bubble{padding:12px 16px;border-radius:20px;font-size:14.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.user .bubble{background:#2d2d4a;color:#fff;border-bottom-right-radius:6px}
+.bot .bubble{background:#15151f;border:1px solid #25253a;color:#e8e8ef;border-bottom-left-radius:6px}
+.options{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.opt-btn{background:#1c1c2e;border:1px solid #3a3a5e;color:#c9b3ff;padding:8px 14px;border-radius:20px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.opt-btn:hover{background:#a86bff;color:#fff;border-color:#a86bff;transform:translateY(-1px)}
+.generated-img{width:100%;max-width:360px;border-radius:16px;margin-top:12px;border:1px solid #2a2a4a;display:block}
+.input-area{padding:10px 14px 14px;background:#0a0a0f;border-top:1px solid #1e1e32;flex-shrink:0}
+.input-box{background:#181825;border:1.5px solid #2a2a45;border-radius:28px;display:flex;align-items:flex-end;padding:6px 8px 6px 16px;gap:10px;transition:border-color 0.2s}
+.input-box:focus-within{border-color:#a86bff}
+.input-box textarea{background:transparent;border:0;color:#fff;flex:1;outline:none;resize:none;font-size:15px;padding:9px 0;max-height:110px;font-family:inherit}
+.input-box textarea::placeholder{color:#666}
+.icon-btn{background:transparent;border:0;color:#888;font-size:22px;cursor:pointer;padding:4px}
+.send-btn{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#ff6ec7,#a86bff);border:0;color:#fff;font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(168,107,255,0.3)}
+.bottom-nav{height:68px;background:#0f0f18;border-top:1px solid #1e1e32;display:flex;justify-content:space-around;align-items:center;flex-shrink:0;padding-bottom:6px}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:#5a5a72;font-size:10.5px;font-weight:600;cursor:pointer;padding:6px 12px;border-radius:12px}
+.nav-item.active{color:#ff6ec7;background:rgba(255,110,199,0.08)}
+.nav-item span{font-size:20px}
+.welcome{display:flex;flex-direction:column;align-items:center;text-align:center;padding:30px 20px 10px}
+.welcome h1{font-size:30px;font-weight:900;margin-bottom:8px}
+.welcome p{color:#777;font-size:14px;margin-bottom:18px;line-height:1.5}
+.features{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;margin-top:14px}
+.feat{background:#12121f;border:1px solid #1e1e32;padding:16px;border-radius:16px;text-align:left}
+.feat b{display:block;font-size:13px;margin-bottom:4px}
+.feat span{font-size:11.5px;color:#777}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo-area"><span style="font-size:20px">☰</span><span class="logo">angel.ai</span><span class="by">by Imtiyaz</span></div>
+  <button class="getapp-btn" onclick="installApp()">Get App</button>
+</div>
+<div class="main-wrapper">
+  <div class="chat-container" id="chat"></div>
+  <div class="input-area">
+    <div class="input-box">
+      <button class="icon-btn" onclick="alert('Gallery coming soon - Images will save here!')">+</button>
+      <textarea id="inp" placeholder="Ask anything or say 'create sad boy dp'..." rows="1" oninput="autoGrow(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+      <button class="send-btn" onclick="sendMessage()">↑</button>
+    </div>
+  </div>
+</div>
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="scrollToTop()"><span>🔍</span>Explore</div>
+  <div class="nav-item" onclick="scrollToTop()"><span>💬</span>Chat</div>
+  <div class="nav-item" onclick="quickPrompt('create sad boy dp')"><span>✨</span>Generate</div>
+  <div class="nav-item" onclick="alert('Gallery: Only images/videos saved here - Family Friendly!')"><span>🖼️</span>Gallery</div>
+  <div class="nav-item" onclick="installApp()"><span>👤</span>Profile</div>
+</div>
 <script>
+// PWA Install
+let deferredPrompt;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;});
+function installApp(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(r=>{if(r.outcome==='accepted')alert('✅ Angel AI Installed!');deferredPrompt=null})}else alert('📥 Install Karne Ke Liye: Top pe 3 dots ⋮ > Add to Home Screen > Install')}
+function autoGrow(t){t.style.height='auto';t.style.height=Math.min(t.scrollHeight,110)+'px'}
+function scrollToTop(){document.getElementById('chat').scrollTop=0}
+function quickPrompt(t){document.getElementById('inp').value=t;sendMessage()}
 let chat=document.getElementById('chat');
-function add(role,t){let m=document.createElement('div');m.className='msg '+role;let safe=t.replace(/</g,'&lt;');m.innerHTML=`<div class="bub">${safe}</div>`;chat.appendChild(m);chat.scrollTop=chat.scrollHeight}
-function smartReply(q){
-  let l=q.toLowerCase().trim();
-  if(['hi','hello','hey','salam','assalam','as-salam'].some(w=>l===w||l.startsWith(w+' '))) return "Hello! 👋 I'm Angel AI by Imtiyaz. How can I help you today? 😊";
-  if(l.includes('how are you')) return "I'm doing really well, thank you for asking! 💜 I'm Angel AI, always ready to help and chat with you. How are YOU doing? Tell me honestly.";
-  if(l.includes('can we talk') || l.includes('talk to me') || l.includes('need to talk')) return "Yes, absolutely! 💜 I'm all ears. You can talk to me about anything - I'm here to listen, no judgment at all. What's on your mind?";
-  if(l.includes('sad') || l.includes('depressed') || l.includes('low') || l.includes('upset') || l.includes('cry')) return "I'm so sorry you're feeling this way 😔 It's okay to feel sad, everyone does sometimes. You are not alone.\n\nDo you want to share what happened? If not, I can distract you - I can tell you a funny story, suggest some music, or just sit here with you virtually. What would help you feel a little better right now?";
-  if(l.includes('bored')) return "Bored? Let's fix that! 😄 I have ideas:\n1. Tell you a bedtime story?\n2. Play 20 questions?\n3. Brainstorm your next project?\n4. Write a poem for you?\nWhat do you want to do?";
-  if(l.includes('love you')) return "Aww, that's so sweet! Love you too! 💜 You're an amazing person. How can I make your day better?";
-  if(l.includes('who are you') || l.includes('what is your name')) return "I'm Angel AI 👼 - Your friendly AI assistant made by Imtiyaz. I can chat, write stories, give ideas, help with studies, and be your friend!";
-  if(l.includes('thank')) return "You're most welcome! 😊 Anytime you need me, I'm here. Anything else I can do for you?";
-  if(l.includes('joke')) return "Okay, here's one: Why did the phone go to therapy? Because it lost all its contacts! 😂 Want another one?";
-  // default smart
-  return `Got it - you said: "${q}"\n\nThat's interesting! Tell me more about that? I can help you think deeper, give ideas, or just chat about it. What do you want to do next?`;
+function addMessage(role, htmlContent){
+  let row=document.createElement('div');row.className='message-row '+role;
+  let avatar=row.className.includes('user')?'🧑':'👼';
+  let inner = `<div class="avatar">${avatar}</div><div class="bubble">${htmlContent}</div>`;
+  if(role==='user') inner = `<div class="bubble">${htmlContent}</div>`;
+  row.innerHTML=inner;
+  chat.appendChild(row);chat.scrollTop=chat.scrollHeight;
 }
-function send(){
-  let i=document.getElementById('inp'); let q=i.value.trim(); if(!q) return;
-  add('user',q); i.value='';
+function addWithOptions(text, opts){
+  let optHtml = `<div class="options">`+opts.map(o=>`<button class="opt-btn" onclick="quickPrompt('${o.replace(/'/g,'')}')">${o}</button>`).join('')+`</div>`;
+  addMessage('bot', text+optHtml);
+}
+function generateImageUrl(userPrompt){
+  let clean = userPrompt.replace(/can you|please|create|picture|image|dp|for me|i want|my|whatsapp/g,'i').trim();
+  if(clean.length<4) clean='sad boy alone dark';
+  let finalPrompt = encodeURIComponent(clean + ' , whatsapp dp, aesthetic, 4k, high quality, portrait');
+  let seed = Math.floor(Math.random()*999999);
+  return {url:`https://image.pollinations.ai/prompt/${finalPrompt}?width=768&height=768&seed=${seed}&nologo=true`, clean};
+}
+function getSmartReply(q){
+  let l=q.toLowerCase();
+  // 1. IMAGE GENERATION - MAIN FEATURE YOU ASKED
+  if(l.includes('create')||l.includes('picture')||l.includes('image')||l.includes('dp')||l.includes('photo')||l.includes('generate')||l.includes('make')||l.includes('draw')||l.includes('sad boy')||l.includes('attitude')){
+    let gen = generateImageUrl(q);
+    return {type:'image', html:`Here is your <b>${gen.clean}</b> DP! 👇🔥<br><img src="${gen.url}" class="generated-img" onload="chat.scrollTop=chat.scrollHeight" onerror="this.src='https://image.pollinations.ai/prompt/sad%20boy%20dp?width=512'"><br><br>💜 Kaisa laga? Aur style chahiye?`, options:["Hoodie wala sad boy","Attitude boy dp with sunglasses","Alone boy dark aesthetic","Anime sad boy","Sad boy with quotes - broken heart","Boys dp stylish"]};
+  }
+  // 2. MOOD & CHAT
+  if(l.includes('how are you')) return {type:'text', html:"I'm doing great, thank you! 💜 I'm Angel AI by Imtiyaz - always here for you. How are YOU feeling today? Be honest!"};
+  if(l.includes('can we talk')||l.includes('talk to me')||l.includes('need to talk')) return {type:'text', html:"Yes, absolutely! 💜 I'm all ears. You can talk to me about anything - no judgment. What's on your mind?", options:["I am sad today","I am bored","Create sad boy dp","Tell me a joke"]};
+  if(l.includes('sad')||l.includes('depressed')||l.includes('lonely')||l.includes('upset')||l.includes('cry')){
+    return {type:'text', html:"I'm really sorry you're feeling this way 😔 It's completely okay to feel sad sometimes. You are not alone - I'm here with you.<br><br>What would help you right now?", options:["Create sad boy dp for me","Tell me a funny story","Give me motivation","I want to talk about it"]};
+  }
+  if(l.includes('bored')) return {type:'text', html:"Bored? Let's make it fun! 😄", options:["Create sad boy dp","Create attitude boy dp","Tell me a joke","Write a story"]};
+  if(l.includes('hi')||l==='hello'||l.startsWith('hello ')||l.startsWith('hi ')) return {type:'text', html:"Hello! 👋 I am <b>Angel AI by Imtiyaz</b> - your friendly assistant.<br><br>I can:<br>• 💬 Chat with you<br>• 🖼️ <b>Create DPs & Images</b><br>• ✨ Give ideas & stories", options:["Create sad boy dp","I am sad today","Can we talk?","Attitude boy dp"]};
+  if(l.includes('love you')) return {type:'text', html:"Aww, love you too! 💜 You're very kind! How can I make your day better?"};
+  if(l.includes('thank')) return {type:'text', html:"You're most welcome! 😊 Anytime you need me. Want me to create a DP for you?"};
+  if(l.includes('who are you')||l.includes('your name')) return {type:'text', html:"I'm <b>Angel AI 👼</b> - Made by Imtiyaz. Family-friendly assistant for chat, DP creation, ideas, and support! No adult content - only clean & safe."};
+  return {type:'text', html:`Got it! You said: "<b>${q.replace(/</g,'&lt;')}</b>"<br><br>I can chat or create images! Try: <i>"create sad boy dp"</i>`, options:["Create sad boy dp","Attitude boy dp","I am sad today","Write a story"]};
+}
+function sendMessage(){
+  let inp=document.getElementById('inp');let q=inp.value.trim();if(!q) return;
+  addMessage('user', q.replace(/</g,'&lt;'));inp.value='';inp.style.height='auto';
   setTimeout(()=>{
-    let ans=smartReply(q);
-    add('bot',ans);
-  },400);
+    let res=getSmartReply(q);
+    if(res.type==='image'){ addWithOptions(res.html,res.options); }
+    else { if(res.options) addWithOptions(res.html,res.options); else addMessage('bot',res.html); }
+  },600);
 }
-add('bot',"Hello! 👋 I am Angel AI by Imtiyaz.\n\nHow can I help you today? You can say 'I am sad', 'can we talk', 'tell me a joke' - I will reply differently every time!");
-</script></body></html>
+// Welcome
+addWithOptions(`<div style="text-align:center"><h2 style="font-size:26px">Welcome to <span style="background:linear-gradient(90deg,#ff6ec7,#a86bff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Angel AI</span></h2><p style="color:#777;font-size:13px;margin-top:6px">Family-friendly • By Imtiyaz • Clean & Safe</p></div><br>👋 Hello! I am <b>Angel AI</b>. I can now do everything you asked:<br><br>✅ Chat like a friend<br>✅ Create <b>DPs / Images</b> - sad boy, attitude boy, etc<br>✅ Gallery - only images/videos<br>✅ Get App button<br>✅ Multilingual - English, Urdu, Hindi, Arabic<br>✅ No adult content - 100% clean`,["Create sad boy dp","Attitude boy dp","I am sad today","Can we talk?"]);
+</script>
+</body>
+</html>
