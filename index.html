@@ -5,66 +5,224 @@
 <title>Angel AI</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#000;color:#fff;font-family:system-ui,sans-serif;height:100dvh;display:flex;overflow:hidden}
-.main{flex:1;display:flex;flex-direction:column;background:#000}
+body{background:#000;color:#fff;font-family:system-ui,sans-serif;height:100dvh;display:flex;flex-direction:column}
 .top{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #111}
-.top b{font-size:17px;font-weight:600}
-.login{background:#fff;color:#000;border:0;padding:7px 18px;border-radius:20px;font-weight:600}
-.chat{flex:1;overflow-y:auto;padding:18px 12px 120px;display:flex;justify-content:center}
-.inner{width:100%;max-width:720px;display:flex;flex-direction:column;gap:16px}
-.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh}
-.welcome h1{font-size:30px;font-weight:400}
+.chat{flex:1;overflow-y:auto;padding:20px 12px 130px;display:flex;justify-content:center}
+.inner{width:100%;max-width:760px;display:flex;flex-direction:column;gap:18px}
+.wel{height:50vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.wel h1{font-size:30px;font-weight:400}
 .row{display:flex;width:100%}.user{justify-content:flex-end}
-.ubub{background:#2a4a7a;padding:11px 18px;border-radius:22px;max-width:75%;font-size:15px}
-.bbub{font-size:15.5px;line-height:1.6;white-space:pre-wrap}
-.bbub img{width:100%;max-width:360px;border-radius:14px;margin-top:10px;display:block}
-.input-wrap{position:fixed;bottom:0;left:0;right:0;background:#000;padding:12px;display:flex;justify-content:center}
-.box{width:100%;max-width:720px;background:#212121;border-radius:28px;display:flex;align-items:center;padding:6px 8px 6px 14px;gap:8px;border:1px solid #2a2a2a}
-.box input{background:transparent;border:0;color:#fff;flex:1;outline:none;font-size:16px;padding:10px 2px}
+.ubub{background:#2a3f5f;padding:11px 18px;border-radius:22px;max-width:78%;font-size:15px;word-break:break-word}
+.bbub{font-size:15.5px;line-height:1.6;white-space:pre-wrap;max-width:100%}
+.bbub img{width:100%;max-width:380px;border-radius:12px;margin-top:10px;display:block}
+.bbub pre{background:#111;padding:12px;border-radius:10px;overflow:auto;margin-top:8px;border:1px solid #222}
+.plus-menu{position:fixed;bottom:95px;left:50%;transform:translateX(-50%);width:90%;max-width:380px;background:#1e1e1e;border-radius:16px;padding:8px;z-index:90;display:none;border:1px solid #333}
+.plus-menu.show{display:block}
+.pm{padding:14px;display:flex;gap:12px;align-items:center;cursor:pointer;border-radius:10px}.pm:hover{background:#2a2a2a}
+.input-wrap{position:fixed;bottom:0;left:0;right:0;background:#000;padding:12px;display:flex;justify-content:center;z-index:50}
+.box{width:100%;max-width:760px;background:#212121;border-radius:28px;display:flex;align-items:center;padding:6px 10px 6px 14px;gap:8px;border:1px solid #333}
+.box input{flex:1;background:transparent;border:0;color:#fff;outline:none;font-size:16px;padding:10px 0}
 .ic{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
 .send{background:#fff;color:#000}
+#fileIn{display:none}
 </style>
 </head>
 <body>
-<div class="main">
-<div class="top"><b>Angel AI</b><button class="login">Log in</button></div>
-<div class="chat" id="chat"><div class="inner" id="inner"><div class="welcome" id="wel"><h1>Where should we start?</h1></div></div></div>
-<div class="input-wrap"><div class="box"><div class="ic">＋</div><input id="inp" placeholder="Ask Angel AI" onkeydown="if(event.key==='Enter')send()"><div class="ic">🎤</div><div class="ic send" onclick="send()">↑</div></div></div>
+<div class="top"><b>Angel AI</b><button style="background:#fff;color:#000;border:0;padding:7px 18px;border-radius:20px;font-weight:600">Log in</button></div>
+
+<div class="chat" id="chat"><div class="inner" id="inner"><div class="wel" id="wel"><h1>Where should we start?</h1><p style="color:#888;font-size:13px;text-align:center">7 Commands: Text • Code • Image • File • Voice • Weather • Plus Menu</p></div></div></div>
+
+<div class="plus-menu" id="pMenu">
+<div class="pm" onclick="openCamera()">📷 Camera</div>
+<div class="pm" onclick="pickFile('image')">🖼️ Photos</div>
+<div class="pm" onclick="pickFile('all')">📁 Files</div>
+<div class="pm" onclick="alert('Plugins: Weather, News, Cricket - bas likho: weather in Dubai')">🔌 Plugins (Weather/News/Cricket)</div>
 </div>
+
+<div class="input-wrap">
+<div class="box">
+<div class="ic" onclick="togglePlus()">＋</div>
+<input id="inp" placeholder="Ask Angel AI" onkeydown="if(event.key==='Enter')send()">
+<div class="ic" onclick="startVoice()">🎤</div>
+<div class="ic send" onclick="send()">↑</div>
+</div>
+</div>
+<input type="file" id="fileIn" onchange="handleFile(this)">
+
 <script>
-const inner=document.getElementById('inner'),inp=document.getElementById('inp'),wel=document.getElementById('wel');
-function add(user,text,img){
-  if(wel)wel.style.display='none';
-  let r=document.createElement('div');r.className='row '+(user?'user':'bot');
-  if(user){r.innerHTML=`<div class="ubub">${text}</div>`}
-  else{
-    let im=img?`<img src="${img}" onload="chat.scrollTop=99999">`:'';
-    r.innerHTML=`<div class="bbub">${text}${im}</div>`;
-  }
-  inner.appendChild(r);document.getElementById('chat').scrollTop=999999;
+const inner=document.getElementById('inner'),inp=document.getElementById('inp'),wel=document.getElementById('wel'),chat=document.getElementById('chat'),pMenu=document.getElementById('pMenu'),fileIn=document.getElementById('fileIn');
+function togglePlus(){pMenu.classList.toggle('show')}
+function addMe(t,img){if(wel)wel.style.display='none';let r=document.createElement('div');r.className='row user';let im=img?`<br><img src="${img}" style="width:120px;border-radius:10px;margin-top:6px">`:'';r.innerHTML=`<div class="ubub">${t}${im}</div>`;inner.appendChild(r);chat.scrollTop=999999}
+function addBot(t,img){let r=document.createElement('div');r.className='row bot';let im=img?`<img src="${img}">`:'';let txt=t.replace(/```([\s\S]*?)```/g,'<pre>$1</pre>');r.innerHTML=`<div class="bbub">${txt}${im}</div>`;inner.appendChild(r);chat.scrollTop=999999}
+function pickFile(type){pMenu.classList.remove('show');fileIn.accept=type==='image'?'image/*':'*/*';fileIn.click()}
+function openCamera(){pMenu.classList.remove('show');fileIn.accept='image/*';fileIn.setAttribute('capture','environment');fileIn.click()}
+function handleFile(input){
+  let file=input.files[0];if(!file)return;
+  let reader=new FileReader();
+  reader.onload=e=>{
+    addMe(`[File: ${file.name}] Is photo/file me kya hai?`, e.target.result);
+    addBot(`📁 **${file.name}** mil gaya bhai!\n\nYe ${file.type.includes('image')?'tasveer hai. Is me jo dikh raha hai wo analyze kar sakta hun':'file hai'}. Aap is ke baare me kya puchna chahte ho?`, file.type.includes('image')?e.target.result:null);
+  };
+  reader.readAsDataURL(file);
 }
-async function getSmartReply(t){
-  let low=t.toLowerCase();
-  // Image
-  if(/sad boy|dp|create|photo|picture/i.test(low)){
-    let prompt=encodeURIComponent(t.replace(/create|dp|photo/gi,'').trim()+' sad boy aesthetic whatsapp dp 4k');
-    let url=`https://image.pollinations.ai/prompt/${prompt}?width=768&height=768&seed=${Math.floor(Math.random()*99999)}&nologo=true`;
-    return {text:`Ye lo aapki **${t}** 🥀\n\nPasand aaye to batao, aur style bana dunga!`,img:url};
+function startVoice(){
+  let rec=new (window.SpeechRecognition||window.webkitSpeechRecognition)();
+  rec.lang='en-US'; rec.start();
+  inp.placeholder='Sun raha hun... bolo';
+  rec.onresult=e=>{inp.value=e.results[0][0].transcript; inp.placeholder='Ask Angel AI'; send()};
+  rec.onerror=()=>{inp.placeholder='Ask Angel AI'; alert('Mic allow karo bhai')};
+}
+
+async function realAI(prompt){
+  let low=prompt.toLowerCase();
+  // 6. LIVE DATA - Weather / News / Cricket / Gold / Namaz
+  if(low.includes('weather')||low.includes('mausam')||low.includes('temperature')){
+    let city=prompt.replace(/weather|mausam|temperature|kaisi|kaisa|hai|ka|ki|in|of|batao/gi,'').trim()||'Dubai';
+    try{
+      let r=await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`); let d=await r.json(); let c=d.current_condition[0];
+      return {text:`📍 **${city.toUpperCase()} Weather**\n🌡️ ${c.temp_C}°C - ${c.weatherDesc[0].value}\n💨 Hawa: ${c.windspeedKmph} km/h\n💧 Humidity: ${c.humidity}%`};
+    }catch{ return {text:`${city} ka live weather nahi mila, city name sahi likho: weather in Dubai`} }
   }
-  // Smart replies
-  if(/how are you/.test(low)) return {text:"I'm great! 😊 Thanks for asking. How are you? Kaisay ho aap?"};
-  if(/kasay ho|kese ho|kaise ho|kya hal/.test(low)) return {text:"Alhamdulillah, mai bilkul theek hun bhai! 😊 Aap sunao, kasay ho? Kya haal hai?"};
-  if(/kaf halak|kaif halak|كيف حالك/.test(low)) return {text:"أنا بخير الحمد لله! 😊 كيف حالك أنت؟\n\nAna bakhair alhamdulillah! Aap kaisay ho?"};
-  // Real AI fallback
+  if(low.includes('news')||low.includes('cricket')||low.includes('gold')||low.includes('namaz')||low.includes('azan')){
+    // Use AI for live info
+  }
+  // 3. IMAGE
+  if(low.includes('create')||low.includes('dp')||low.includes('photo')||low.includes('image')||low.includes('picture')||low.includes('bana')||low.includes('generate')){
+    let clean=prompt.replace(/create|generate|bana|photo|dp|image|picture/gi,'').trim()||'aesthetic';
+    let p=encodeURIComponent(clean+', 4k, high quality');
+    let url=`https://image.pollinations.ai/prompt/${p}?width=800&height=800&seed=${Math.floor(Math.random()*999999)}&nologo=true`;
+    return {text:`Ye lo **${clean}** 👇`,img:url};
+  }
+  // 1,2,6 TEXT + CODE + SEARCH
   try{
-    let res=await fetch('https://text.pollinations.ai/openai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'openai',messages:[{role:'system',content:"You are Angel AI, created by Imtiyaz. Name is Angel AI, NOT ChatGPT. Reply smart, friendly. If user speaks Roman Urdu, reply in Roman Urdu. If Arabic, reply Arabic. If English, English."},{role:'user',content:t}]})});
-    let j=await res.json(); return {text:j.choices?.[0]?.message?.content||"Theek hai bhai, samajh gaya! 😊"};
-  }catch(e){return {text:"Hi! 👋 How can I help you today?\n\nBolo bhai kya chahiye?"+`\n\nYou said: ${t}`}}
+    let res=await fetch('https://text.pollinations.ai/openai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'openai',messages:[
+      {role:'system',content:`You are Angel AI by Imtiyaz. You can do: 1.Text chat in Urdu Roman/English/Arabic, 2.Coding HTML/Python, 3.Translate, 4.Summary, 5.Live info like weather/news/cricket/namaz time - try to answer. Be helpful, not saying 'bolo bhai kia chahiye'. Name is Angel AI.`},
+      {role:'user',content:prompt}
+    ]})});
+    let d=await res.json(); let ans=d.choices?.[0]?.message?.content;
+    if(ans) return {text:ans};
+  }catch(e){}
+  return {text:`Samajh gaya bhai: ${prompt}`};
 }
+
 async function send(){
-  let t=inp.value.trim();if(!t)return; add(true,t); inp.value='';
-  let d=document.createElement('div');d.className='row bot';d.innerHTML='<div class="bbub" style="color:#888">Angel is typing...</div>';inner.appendChild(d);
-  let ans=await getSmartReply(t); d.remove(); add(false,ans.text,ans.img);
+  let t=inp.value.trim(); if(!t)return; pMenu.classList.remove('show'); addMe(t); inp.value='';
+  let l=document.createElement('div'); l.className='row bot'; l.id='load'; l.innerHTML='<div class="bbub" style="color:#888">Angel AI soch raha hai...</div>'; inner.appendChild(l);
+  let a=await realAI(t); document.getElementById('load')?.remove(); addBot(a.text,a.img);
+}
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Angel AI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#fff;font-family:system-ui,sans-serif;height:100dvh;display:flex;flex-direction:column}
+.top{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #111}
+.chat{flex:1;overflow-y:auto;padding:20px 12px 130px;display:flex;justify-content:center}
+.inner{width:100%;max-width:760px;display:flex;flex-direction:column;gap:18px}
+.wel{height:50vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.wel h1{font-size:30px;font-weight:400}
+.row{display:flex;width:100%}.user{justify-content:flex-end}
+.ubub{background:#2a3f5f;padding:11px 18px;border-radius:22px;max-width:78%;font-size:15px;word-break:break-word}
+.bbub{font-size:15.5px;line-height:1.6;white-space:pre-wrap;max-width:100%}
+.bbub img{width:100%;max-width:380px;border-radius:12px;margin-top:10px;display:block}
+.bbub pre{background:#111;padding:12px;border-radius:10px;overflow:auto;margin-top:8px;border:1px solid #222}
+.plus-menu{position:fixed;bottom:95px;left:50%;transform:translateX(-50%);width:90%;max-width:380px;background:#1e1e1e;border-radius:16px;padding:8px;z-index:90;display:none;border:1px solid #333}
+.plus-menu.show{display:block}
+.pm{padding:14px;display:flex;gap:12px;align-items:center;cursor:pointer;border-radius:10px}.pm:hover{background:#2a2a2a}
+.input-wrap{position:fixed;bottom:0;left:0;right:0;background:#000;padding:12px;display:flex;justify-content:center;z-index:50}
+.box{width:100%;max-width:760px;background:#212121;border-radius:28px;display:flex;align-items:center;padding:6px 10px 6px 14px;gap:8px;border:1px solid #333}
+.box input{flex:1;background:transparent;border:0;color:#fff;outline:none;font-size:16px;padding:10px 0}
+.ic{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.send{background:#fff;color:#000}
+#fileIn{display:none}
+</style>
+</head>
+<body>
+<div class="top"><b>Angel AI</b><button style="background:#fff;color:#000;border:0;padding:7px 18px;border-radius:20px;font-weight:600">Log in</button></div>
+
+<div class="chat" id="chat"><div class="inner" id="inner"><div class="wel" id="wel"><h1>Where should we start?</h1><p style="color:#888;font-size:13px;text-align:center">7 Commands: Text • Code • Image • File • Voice • Weather • Plus Menu</p></div></div></div>
+
+<div class="plus-menu" id="pMenu">
+<div class="pm" onclick="openCamera()">📷 Camera</div>
+<div class="pm" onclick="pickFile('image')">🖼️ Photos</div>
+<div class="pm" onclick="pickFile('all')">📁 Files</div>
+<div class="pm" onclick="alert('Plugins: Weather, News, Cricket - bas likho: weather in Dubai')">🔌 Plugins (Weather/News/Cricket)</div>
+</div>
+
+<div class="input-wrap">
+<div class="box">
+<div class="ic" onclick="togglePlus()">＋</div>
+<input id="inp" placeholder="Ask Angel AI" onkeydown="if(event.key==='Enter')send()">
+<div class="ic" onclick="startVoice()">🎤</div>
+<div class="ic send" onclick="send()">↑</div>
+</div>
+</div>
+<input type="file" id="fileIn" onchange="handleFile(this)">
+
+<script>
+const inner=document.getElementById('inner'),inp=document.getElementById('inp'),wel=document.getElementById('wel'),chat=document.getElementById('chat'),pMenu=document.getElementById('pMenu'),fileIn=document.getElementById('fileIn');
+function togglePlus(){pMenu.classList.toggle('show')}
+function addMe(t,img){if(wel)wel.style.display='none';let r=document.createElement('div');r.className='row user';let im=img?`<br><img src="${img}" style="width:120px;border-radius:10px;margin-top:6px">`:'';r.innerHTML=`<div class="ubub">${t}${im}</div>`;inner.appendChild(r);chat.scrollTop=999999}
+function addBot(t,img){let r=document.createElement('div');r.className='row bot';let im=img?`<img src="${img}">`:'';let txt=t.replace(/```([\s\S]*?)```/g,'<pre>$1</pre>');r.innerHTML=`<div class="bbub">${txt}${im}</div>`;inner.appendChild(r);chat.scrollTop=999999}
+function pickFile(type){pMenu.classList.remove('show');fileIn.accept=type==='image'?'image/*':'*/*';fileIn.click()}
+function openCamera(){pMenu.classList.remove('show');fileIn.accept='image/*';fileIn.setAttribute('capture','environment');fileIn.click()}
+function handleFile(input){
+  let file=input.files[0];if(!file)return;
+  let reader=new FileReader();
+  reader.onload=e=>{
+    addMe(`[File: ${file.name}] Is photo/file me kya hai?`, e.target.result);
+    addBot(`📁 **${file.name}** mil gaya bhai!\n\nYe ${file.type.includes('image')?'tasveer hai. Is me jo dikh raha hai wo analyze kar sakta hun':'file hai'}. Aap is ke baare me kya puchna chahte ho?`, file.type.includes('image')?e.target.result:null);
+  };
+  reader.readAsDataURL(file);
+}
+function startVoice(){
+  let rec=new (window.SpeechRecognition||window.webkitSpeechRecognition)();
+  rec.lang='en-US'; rec.start();
+  inp.placeholder='Sun raha hun... bolo';
+  rec.onresult=e=>{inp.value=e.results[0][0].transcript; inp.placeholder='Ask Angel AI'; send()};
+  rec.onerror=()=>{inp.placeholder='Ask Angel AI'; alert('Mic allow karo bhai')};
+}
+
+async function realAI(prompt){
+  let low=prompt.toLowerCase();
+  // 6. LIVE DATA - Weather / News / Cricket / Gold / Namaz
+  if(low.includes('weather')||low.includes('mausam')||low.includes('temperature')){
+    let city=prompt.replace(/weather|mausam|temperature|kaisi|kaisa|hai|ka|ki|in|of|batao/gi,'').trim()||'Dubai';
+    try{
+      let r=await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`); let d=await r.json(); let c=d.current_condition[0];
+      return {text:`📍 **${city.toUpperCase()} Weather**\n🌡️ ${c.temp_C}°C - ${c.weatherDesc[0].value}\n💨 Hawa: ${c.windspeedKmph} km/h\n💧 Humidity: ${c.humidity}%`};
+    }catch{ return {text:`${city} ka live weather nahi mila, city name sahi likho: weather in Dubai`} }
+  }
+  if(low.includes('news')||low.includes('cricket')||low.includes('gold')||low.includes('namaz')||low.includes('azan')){
+    // Use AI for live info
+  }
+  // 3. IMAGE
+  if(low.includes('create')||low.includes('dp')||low.includes('photo')||low.includes('image')||low.includes('picture')||low.includes('bana')||low.includes('generate')){
+    let clean=prompt.replace(/create|generate|bana|photo|dp|image|picture/gi,'').trim()||'aesthetic';
+    let p=encodeURIComponent(clean+', 4k, high quality');
+    let url=`https://image.pollinations.ai/prompt/${p}?width=800&height=800&seed=${Math.floor(Math.random()*999999)}&nologo=true`;
+    return {text:`Ye lo **${clean}** 👇`,img:url};
+  }
+  // 1,2,6 TEXT + CODE + SEARCH
+  try{
+    let res=await fetch('https://text.pollinations.ai/openai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'openai',messages:[
+      {role:'system',content:`You are Angel AI by Imtiyaz. You can do: 1.Text chat in Urdu Roman/English/Arabic, 2.Coding HTML/Python, 3.Translate, 4.Summary, 5.Live info like weather/news/cricket/namaz time - try to answer. Be helpful, not saying 'bolo bhai kia chahiye'. Name is Angel AI.`},
+      {role:'user',content:prompt}
+    ]})});
+    let d=await res.json(); let ans=d.choices?.[0]?.message?.content;
+    if(ans) return {text:ans};
+  }catch(e){}
+  return {text:`Samajh gaya bhai: ${prompt}`};
+}
+
+async function send(){
+  let t=inp.value.trim(); if(!t)return; pMenu.classList.remove('show'); addMe(t); inp.value='';
+  let l=document.createElement('div'); l.className='row bot'; l.id='load'; l.innerHTML='<div class="bbub" style="color:#888">Angel AI soch raha hai...</div>'; inner.appendChild(l);
+  let a=await realAI(t); document.getElementById('load')?.remove(); addBot(a.text,a.img);
 }
 </script>
 </body>
