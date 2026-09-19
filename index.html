@@ -24,7 +24,7 @@ body{background:#212121;color:#fff;font-family:Inter,system-ui,sans-serif;height
 .msg{margin-bottom:18px;display:flex;gap:12px}
 .msg.user{justify-content:flex-end}
 .bubble{max-width:75%;padding:12px 16px;border-radius:18px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
-.user .bubble{background:#2f2f2f}
+.user.bubble{background:#2f2f2f}
 .input-area{padding:12px 16px 20px;max-width:800px;margin:0 auto;width:100%}
 .input-box{background:#2f2f2f;border-radius:28px;display:flex;align-items:flex-end;padding:8px 8px 8px 16px;gap:8px}
 .input-box textarea{background:transparent;border:none;outline:none;color:#fff;flex:1;resize:none;max-height:120px;font-size:16px;padding:10px 0}
@@ -70,4 +70,91 @@ body{background:#212121;color:#fff;font-family:Inter,system-ui,sans-serif;height
     <div id="previewBox"><img id="previewImage" style="width:80px;height:80px;object-fit:cover;border-radius:10px"><button onclick="clearPreview()" style="position:absolute;top:-6px;left:74px;background:#000;border-radius:50%;border:none;color:#fff;width:22px;height:22px">×</button></div>
     <div class="input-box">
       <button class="icon-btn" onclick="document.getElementById('fileInput').click()">+</button>
-      <textarea id="chatInput" placeholder="Ask anything..." rows="1" oninput="autoGrow(this)" onkeydown="if(event.key==='Enter'&&
+      <textarea id="chatInput" placeholder="Ask anything..." rows="1" oninput="autoGrow(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();handleSend()}"></textarea>
+      <button class="icon-btn">🎤</button>
+      <button class="send-btn" onclick="handleSend()">↑</button>
+    </div>
+  </div>
+</div>
+<input type="file" id="fileInput" accept="image/*,video/*" hidden onchange="handleFile(this.files[0])">
+<script>
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt=e; });
+async function installApp(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    const {outcome}=await deferredPrompt.userChoice;
+    if(outcome==='accepted'){ alert('✅ Angel AI Installed!'); }
+    deferredPrompt=null;
+  }else{
+    alert("To Install:\n1. Click 3 dots ⋮\n2. Add to Home Screen\n3. Install");
+  }
+}
+let chats = JSON.parse(localStorage.getItem('angelChats')||'[]');
+let library = JSON.parse(localStorage.getItem('angelLibrary')||'[]');
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('hidden'); }
+function newChat(){ document.getElementById('chatContainer').innerHTML=''; document.getElementById('chatContainer').style.display='none'; document.getElementById('centerArea').style.display='flex'; }
+function quickAsk(el){ document.getElementById('chatInput').value=el.innerText; handleSend(); }
+function autoGrow(t){ t.style.height='auto'; t.style.height=Math.min(t.scrollHeight,120)+'px'; }
+function renderHistory(){
+  const h=document.getElementById('history'); h.innerHTML='';
+  chats.slice(0,20).forEach(c=>{ const d=document.createElement('div'); d.className='history-item'; d.innerText=c.q; d.onclick=()=>{document.getElementById('chatInput').value=c.q; handleSend();}; h.appendChild(d); });
+}
+renderHistory();
+function addMessage(role,text,img){
+  document.getElementById('centerArea').style.display='none';
+  const cont=document.getElementById('chatContainer'); cont.style.display='block';
+  const msg=document.createElement('div'); msg.className='msg '+role;
+  let html = `<div class="bubble">${text.replace(/</g,'&lt;')}</div>`;
+  if(img){ html = `<div class="bubble"><img src="${img}" class="library-img"><br>${text.replace(/</g,'&lt;')}</div>`; }
+  msg.innerHTML=html; cont.appendChild(msg); cont.scrollTop=cont.scrollHeight;
+}
+function handleFile(file){
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const src=e.target.result;
+    document.getElementById('previewImage').src=src;
+    document.getElementById('previewBox').classList.add('show');
+    library.unshift({type: file.type.startsWith('video')?'video':'image', src: src, id: Date.now()});
+    localStorage.setItem('angelLibrary', JSON.stringify(library));
+  };
+  reader.readAsDataURL(file);
+}
+function clearPreview(){ document.getElementById('previewBox').classList.remove('show'); }
+async function handleSend(){
+  const input=document.getElementById('chatInput');
+  const q=input.value.trim(); if(!q) return;
+  const imgEl=document.getElementById('previewImage');
+  const hasImg=document.getElementById('previewBox').classList.contains('show') && imgEl.src;
+  const imgSrc=hasImg?imgEl.src:null;
+  addMessage('user', q, imgSrc);
+  input.value=''; clearPreview();
+  chats.unshift({q, time:Date.now()}); localStorage.setItem('angelChats', JSON.stringify(chats)); renderHistory();
+  addMessage('assistant','Thinking... ✨');
+  const chatCont=document.getElementById('chatContainer');
+  try{
+    const prompt = `You are Angel AI by Imtiyaz. Reply in SAME language as user input. If English then English, Arabic then Arabic, Hindi then Hindi, Urdu then Urdu. Keep short helpful like ChatGPT. User: ${q}`;
+    const res=await fetch(`https://text.pollinations.ai/${encodeURIComponent(prompt)}?model=openai`);
+    let answer=await res.text();
+    chatCont.lastChild.remove();
+    addMessage('assistant', answer);
+  }catch(e){
+    chatCont.lastChild.remove();
+    addMessage('assistant', q.toLowerCase()==='hi'? "Hello! 👋 I'm Angel AI. How can I help you today?" : `You said: "${q}" - I'm here to help!`);
+  }
+}
+function showLibrary(){
+  document.getElementById('centerArea').style.display='none';
+  const cont=document.getElementById('chatContainer'); cont.style.display='block'; cont.innerHTML='<h3>📚 Library - Images/Videos Only</h3><br>';
+  if(library.length===0){ cont.innerHTML+='<p style="color:#888">No media yet.</p>'; return; }
+  library.forEach(item=>{
+    const d=document.createElement('div'); d.style.marginBottom='16px';
+    if(item.type==='image') d.innerHTML=`<img src="${item.src}" class="library-img">`;
+    else d.innerHTML=`<video src="${item.src}" controls class="library-img"></video>`;
+    cont.appendChild(d);
+  });
+}
+</script>
+</body>
+</html>
