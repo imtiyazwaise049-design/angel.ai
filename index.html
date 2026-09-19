@@ -1,85 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Angel AI - By Imtiyaz</title>
-<meta name="theme-color" content="#212121">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#212121;color:#fff;font-family:system-ui,sans-serif;height:100vh;display:flex;overflow:hidden}
-.sidebar{width:270px;background:#171717;padding:12px;display:flex;flex-direction:column;transition:0.3s}
-.sidebar.hidden{margin-left:-270px}
-.main{flex:1;display:flex;flex-direction:column;background:#212121}
-.header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #2a2a2a}
-.getapp-btn{width:100%;background:#2ecc71;color:#000;font-weight:800;font-size:17px;padding:14px;border-radius:14px;border:none;cursor:pointer}
-.center-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
-.logo{font-size:52px}.app-title{font-size:30px;font-weight:700;margin-top:8px}.ask-title{font-size:28px;font-weight:700;margin:24px 0;text-align:center}
-.chips{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:380px;width:100%}
-.chip{background:#2f2f2f;border:1px solid #3a3a3a;padding:16px;border-radius:16px;cursor:pointer;font-size:13px}
-.chat-container{flex:1;overflow-y:auto;padding:18px;max-width:800px;margin:0 auto;width:100%;display:none}
-.msg{margin-bottom:16px;display:flex;gap:10px}
-.msg.user{justify-content:flex-end}
-.bubble{max-width:78%;padding:11px 15px;border-radius:18px;line-height:1.5;white-space:pre-wrap;word-break:break-word;font-size:15px}
-.user.bubble{background:#2f2f2f}
-.input-area{padding:10px 14px 18px;max-width:800px;margin:0 auto;width:100%}
-.input-box{background:#2f2f2f;border-radius:26px;display:flex;align-items:flex-end;padding:6px 8px 6px 14px;gap:6px}
-.input-box textarea{background:transparent;border:none;outline:none;color:#fff;flex:1;resize:none;max-height:120px;font-size:15px;padding:10px 0}
-.send-btn{background:#2ecc71;color:#000;border:none;width:38px;height:38px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.library-img{width:100%;border-radius:12px;margin-top:8px}
-#previewBox{display:none;position:relative;margin-bottom:8px}
-#previewBox.show{display:block}
-.history-item{padding:9px 10px;border-radius:8px;cursor:pointer;color:#999;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.history-item:hover{background:#2f2f2f;color:#fff}
-</style>
-</head>
-<body>
-<div class="sidebar" id="sidebar">
-  <button onclick="newChat()" style="background:#212121;border:none;color:#fff;padding:11px;border-radius:10px;text-align:left;cursor:pointer;margin-bottom:8px">📝 New Chat</button>
-  <div style="padding:6px 0"><button class="getapp-btn" onclick="installApp()">📥 Get The App</button></div>
-  <div id="history" style="flex:1;overflow-y:auto"></div>
-  <div style="border-top:1px solid #2a2a2a;padding-top:8px">
-    <div onclick="showLibrary()" style="padding:10px;cursor:pointer;font-size:14px">📚 Library <span style="color:#666;font-size:10px">(Only Images/Videos)</span></div>
-    <div style="padding:10px;display:flex;gap:8px;align-items:center"><span>👼</span><div><div style="font-size:13px">Angel AI</div><div style="font-size:10px;color:#666">By Imtiyaz</div></div></div>
-  </div>
-</div>
-<div class="main">
-  <div class="header"><button onclick="toggleSidebar()" style="background:transparent;border:none;color:#fff;font-size:22px">☰</button><div style="font-weight:700">Angel AI</div><div style="width:22px"></div></div>
-  <div class="center-area" id="centerArea"><div class="logo">👼</div><div class="app-title">Angel AI</div><div class="ask-title">What can I help with?</div><div class="chips"><div class="chip" onclick="quickAsk(this)">✨ Write a bedtime story</div><div class="chip" onclick="quickAsk(this)">💡 Brainstorm ideas</div><div class="chip" onclick="quickAsk(this)">📝 Summarize notes</div><div class="chip" onclick="quickAsk(this)">🏋️ Workout plan</div></div></div>
-  <div class="chat-container" id="chatContainer"></div>
-  <div class="input-area"><div id="previewBox"><img id="previewImage" style="width:70px;height:70px;object-fit:cover;border-radius:10px"><button onclick="clearPreview()" style="position:absolute;top:-6px;left:64px;background:#000;border-radius:50%;border:none;color:#fff;width:20px;height:20px">×</button></div><div class="input-box"><button onclick="document.getElementById('fileInput').click()" style="background:transparent;border:none;color:#aaa;font-size:20px">+</button><textarea id="chatInput" placeholder="Ask anything..." rows="1" oninput="autoGrow(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();handleSend()}"></textarea><button class="send-btn" onclick="handleSend()">↑</button></div></div>
-</div>
-<input type="file" id="fileInput" accept="image/*,video/*" hidden onchange="handleFile(this.files[0])">
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Angel AI by Imtiyaz</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0a0a0f;color:#fff;font-family:sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden}.topbar{height:56px;background:#0a0a0f;border-bottom:1px solid #1a1a25;display:flex;align-items:center;justify-content:space-between;padding:0 14px}.logo{font-weight:800;font-size:20px;background:linear-gradient(90deg,#ff6ec7,#a86bff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.login-btn{border:1px solid #a86bff;color:#fff;padding:7px 16px;border-radius:20px;background:transparent;font-size:13px;font-weight:600;cursor:pointer}.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}.hero{padding:24px 16px;text-align:center}.hero h1{font-size:28px;font-weight:800;margin-bottom:8px}.chat-list{padding:10px 12px;flex:1}.chat-item{display:flex;align-items:center;gap:12px;background:#12121a;border:1px solid #1f1f2e;padding:12px;border-radius:14px;margin-bottom:10px;cursor:pointer}.avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#ff6ec7,#6b7cff);display:flex;align-items:center;justify-content:center;font-size:20px}.chat-info{flex:1;min-width:0}.chat-name{font-weight:600;font-size:15px}.chat-last{color:#777;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}.chips{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}.chip{background:#12121a;border:1px solid #222233;padding:16px;border-radius:16px;font-size:13px;cursor:pointer;text-align:center}.chip b{display:block;margin-bottom:4px}.chat-view{flex:1;overflow-y:auto;padding:16px;display:none;flex-direction:column;gap:14px}.msg{display:flex;gap:10px;max-width:85%}.msg.user{align-self:flex-end;flex-direction:row-reverse}.bub{padding:11px 15px;border-radius:18px;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word}.user.bub{background:#2a2a40;border-bottom-right-radius:4px}.bot.bub{background:#181825;border:1px solid #222233;border-bottom-left-radius:4px}.input-wrap{padding:10px 12px 14px;background:#0a0a0f;border-top:1px solid #1a1a25}.input-box{background:#181825;border:1px solid #2a2a3f;border-radius:26px;display:flex;align-items:flex-end;padding:6px 8px 6px 14px;gap:8px}.input-box textarea{background:transparent;border:0;color:#fff;flex:1;outline:none;resize:none;max-height:100px;font-size:15px;padding:8px 0}.send{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#ff6ec7,#a86bff);border:0;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}.bottom-nav{height:64px;background:#0f0f18;border-top:1px solid #1a1a25;display:flex;justify-content:space-around;align-items:center}.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:#666;font-size:10px;cursor:pointer}.nav-item.active{color:#ff6ec7}.nav-item span{font-size:20px}.lib-img{width:100%;border-radius:12px;margin-top:6px;max-height:300px;object-fit:cover}.getapp{width:100%;background:linear-gradient(90deg,#2ecc71,#1abc9c);color:#000;font-weight:800;padding:14px;border-radius:14px;border:0;cursor:pointer;margin:10px 0}#preview{position:relative;margin-bottom:8px;display:none}#preview.show{display:block}</style></head><body>
+<div class="topbar"><div style="display:flex;align-items:center;gap:10px"><span>☰</span><span class="logo">angel.ai</span><span style="font-size:10px;color:#555">by Imtiyaz</span></div><button class="login-btn" onclick="installApp()">Get App</button></div>
+<div class="main" id="mainList"><div class="hero"><h1>Welcome to <span style="background:linear-gradient(90deg,#ff6ec7,#a86bff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Angel AI</span></h1><p>Your friendly AI assistant - By Imtiyaz</p><button class="getapp" onclick="installApp()">📥 Get The App - Install Now</button></div>
+<div class="chat-list"><div class="chat-item" onclick="openChat('Angel')"><div class="avatar">👼</div><div class="chat-info"><div class="chat-name">Angel AI</div><div class="chat-last">Hello! How can I help you today? Tap to chat...</div></div><div style="color:#444">›</div></div><div class="chat-item" onclick="openChat('Helper')"><div class="avatar" style="background:linear-gradient(135deg,#6bff8a,#4ecdc4)">💡</div><div class="chat-info"><div class="chat-name">Idea Helper</div><div class="chat-last">Brainstorm creative ideas</div></div><div>›</div></div><div class="chips"><div class="chip" onclick="quick('Write a bedtime story')"><b>✨ Story</b>Bedtime story</div><div class="chip" onclick="quick('Brainstorm ideas')"><b>💡 Ideas</b>Brainstorm</div><div class="chip" onclick="quick('Summarize my notes')"><b>📝 Summary</b>Summarize</div><div class="chip" onclick="quick('Plan a weekly workout')"><b>🏋️ Fitness</b>Workout</div></div><div id="recentList"></div></div></div>
+<div class="chat-view" id="chatView"></div>
+<div class="input-wrap"><div id="preview"><img id="prevImg" style="width:60px;height:60px;border-radius:10px;object-fit:cover"><button onclick="clearPrev()" style="position:absolute;top:-6px;left:54px;background:#000;color:#fff;border:0;width:20px;height:20px;border-radius:50%">×</button></div><div class="input-box"><button onclick="document.getElementById('fileIn').click()" style="background:transparent;border:0;color:#888;font-size:22px">+</button><textarea id="inp" placeholder="Ask anything..." rows="1" oninput="grow(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"></textarea><button class="send" onclick="send()">↑</button></div></div>
+<div class="bottom-nav"><div class="nav-item active" onclick="showHome()"><span>🔍</span>Explore</div><div class="nav-item" onclick="showHome()"><span>💬</span>Chat</div><div class="nav-item" onclick="document.getElementById('fileIn').click()"><span>➕</span>Generate</div><div class="nav-item" onclick="showLib()"><span>🖼️</span>Gallery</div><div class="nav-item" onclick="installApp()"><span>👤</span>Profile</div></div>
+<input type="file" id="fileIn" accept="image/*,video/*" hidden onchange="handleFile(this.files[0])">
 <script>
 let deferredPrompt;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;});
-async function installApp(){if(deferredPrompt){deferredPrompt.prompt();const{outcome}=await deferredPrompt.userChoice;if(outcome==='accepted')alert('✅ Installed!');deferredPrompt=null;}else{alert("Install: 3 dots ⋮ > Add to Home Screen");}}
-let chats=JSON.parse(localStorage.getItem('angelChats')||'[]');let library=JSON.parse(localStorage.getItem('angelLibrary')||'[]');
-function toggleSidebar(){document.getElementById('sidebar').classList.toggle('hidden');}
-function newChat(){document.getElementById('chatContainer').innerHTML='';document.getElementById('chatContainer').style.display='none';document.getElementById('centerArea').style.display='flex';}
-function quickAsk(el){document.getElementById('chatInput').value=el.innerText;handleSend();}
-function autoGrow(t){t.style.height='auto';t.style.height=Math.min(t.scrollHeight,120)+'px';}
-function renderHistory(){const h=document.getElementById('history');h.innerHTML='';chats.slice(0,25).forEach(c=>{const d=document.createElement('div');d.className='history-item';d.innerText=c.q;d.onclick=()=>{document.getElementById('chatInput').value=c.q;handleSend();};h.appendChild(d);});}renderHistory();
-function addMessage(role,text,img){document.getElementById('centerArea').style.display='none';const cont=document.getElementById('chatContainer');cont.style.display='block';const msg=document.createElement('div');msg.className='msg '+role;let safe=text.replace(/</g,'&lt;');let html=`<div class="bubble">${safe}</div>`;if(img){html=`<div class="bubble"><img src="${img}" class="library-img"><br>${safe}</div>`;}msg.innerHTML=html;cont.appendChild(msg);cont.scrollTop=cont.scrollHeight;return msg;}
-function handleFile(file){if(!file)return;const reader=new FileReader();reader.onload=e=>{const src=e.target.result;document.getElementById('previewImage').src=src;document.getElementById('previewBox').classList.add('show');library.unshift({type:file.type.startsWith('video')?'video':'image',src:src,id:Date.now()});localStorage.setItem('angelLibrary',JSON.stringify(library));};reader.readAsDataURL(file);}
-function clearPreview(){document.getElementById('previewBox').classList.remove('show');}
-async function getAIReply(userText){
-  const langPrompt=`You are Angel AI by Imtiyaz. Reply in SAME language as user. English->English, Arabic->Arabic, Hindi->Hindi, Urdu->Urdu. Short friendly. User: ${userText}`;
-  try{
-    const r=await fetch("https://www.blackbox.ai/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:[{id:"0",role:"user",content:langPrompt}],conversationId:Date.now().toString()})});
-    if(r.ok){let t=await r.text();t=t.replace(/\$\~\~\~\$/g,'').trim();if(t.length>3){try{if(t.trim().startsWith('{')){let j=JSON.parse(t);if(j.response)return j.response;}}catch{}return t;}}
-  }catch(e){}
-  try{
-    const r2=await fetch("https://text.pollinations.ai/openai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"openai",messages:[{role:"user",content:langPrompt}],stream:false})});
-    if(r2.ok){const j=await r2.json();if(j.choices&&j.choices[0])return j.choices[0].message.content;}
-  }catch(e){}
-  const q=userText.toLowerCase().trim();
-  if(["hi","hello","hey"].includes(q))return"Hello! 👋 I'm Angel AI by Imtiyaz. How can I help you today?";
-  if(q.includes("مرحبا"))return"مرحبا! 👋 أنا Angel AI، كيف يمكنني مساعدتك؟";
-  if(q.includes("नमस्ते"))return"नमस्ते! 👋 मैं Angel AI हूँ। कैसे मदद कर सकता हूँ?";
-  if(q.includes("سلام"))return"السلام علیکم! 👋 میں Angel AI ہوں، آپ کی کیسے مدد کر سکتا ہوں؟";
-  return `You said: "${userText}" - I'm Angel AI by Imtiyaz, here to help!`;
-}
-async function handleSend(){
-  const input=document.getElementById('chatInput');const q=input.value.trim();if(!q)return;
-  const imgEl=document.getElementById('previewImage');const hasImg=document.getElementById('previewBox').classList.contains('show')&&imgEl.src;const imgSrc=hasImg?imgEl.src:null;
-  addMessage('user',q,imgSrc);input.value='';clearPreview();chats.unshift({q,time:Date.now()});localStorage.setItem('
+function installApp(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(r=>{if(r.outcome==='accepted')alert('✅ Installed!');deferredPrompt=null})}else alert('Install: 3 dots ⋮ > Add to Home Screen')}
+let chats=JSON.parse(localStorage.getItem('angelChats2')||'[]');let lib=JSON.parse(localStorage.getItem('angelLib2')||'[]');
+function grow(t){t.style.height='auto';t.style.height=Math.min(t.scrollHeight,100)+'px'}
+function renderRecent(){let el=document.getElementById('recentList');el.innerHTML=chats.length?'<div style="color:#555;font-size:11px;margin:12px 4px">RECENT</div>':'';chats.slice(0,8).forEach(c=>{let d=document.createElement('div');d.className='chat-item';d.innerHTML=`<div class="avatar" style="background:#222">💬</div><div class="chat-info"><div class="chat-name">${c.q.slice(0,30)}</div><div class="chat-last">${new Date(c.t).toLocaleTimeString()}</div></div>`;d.onclick=()=>{document.getElementById('inp').value=c.q;send()};el.appendChild(d)})}renderRecent();
+function showHome(){document.getElementById('mainList').style.display='flex';document.getElementById('chatView').style.display='none';document.getElementById('chatView').innerHTML=''}
+function openChat(n){showHome();document.getElementById('inp').value='Hi, I am talking to '+n;send()}
+function quick(t){document.getElementById('inp').value=t;send()}
+function addMsg(role,text,img){document.getElementById('mainList').style.display='none';let cv=document.getElementById('chatView');cv.style.display='flex';let m=document.createElement('div');m.className='msg '+role;let safe=text.replace(/</g,'&lt;');let html=`<div class="avatar" style="width:32px;height:32px;font-size:14px">${role==='user'?'🧑':'👼'}</div><div class="bub">${safe}${img?`<br><img src="${img}" class="lib-img">`:''}</div>`;if(role==='user')html=`<div class="bub">${safe}${img?`<br><img src="${img}" class="lib-img">`:''}</div>`;m.innerHTML=html;cv.appendChild(m);cv.scrollTop=cv.scrollHeight;return m;}
+function handleFile(f){if(!f)return;let r=new FileReader();r.onload=e=>{document.getElementById('prevImg').src=e.target.result;document.getElementById('preview').classList.add('show');lib.unshift({type:f.type.startsWith('video')?'v':'i',src:e.target.result,id:Date.now()});localStorage.setItem('angelLib2',JSON.stringify(lib))};r.readAsDataURL(f)}
+function clearPrev(){document.getElementById('preview').classList.remove('show')}
+function showLib(){document.getElementById('mainList').style.display='none';let cv=document.getElementById('chatView');cv.style.display='flex';cv.innerHTML='<h3 style="padding:8px">🖼️ Gallery - Only Images/Videos</h3>';if(!lib.length)cv.innerHTML+='<p style="color:#666;padding:12px">No media yet. Tap + to upload.</p>';else lib.forEach(it=>{let d=document.createElement('div');d.style.padding='8px';d.innerHTML=it.type==='i'?`<img src="${it.src}" class="lib-img">`:`<video src="${it.src}" controls class="lib-img"></video>`;cv.appendChild(d)})}
+async function getReply(q){const prompt=`You are Angel AI by Imtiyaz. Friendly, short, helpful. Reply SAME language as user. User: ${q}`;try{const r=await fetch('https://www.blackbox.ai/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'user',content:prompt}],id:Date.now().toString()})});if(r.ok){let t=await r.text();t=t.replace(/\$\~\~\~\$/g,'').trim();if(t.length>4){try{if(t.startsWith('{')){let j=JSON.parse(t);if(j.response)return j.response}}catch{}return t}}}catch(e){}let l=q.toLowerCase();if(['hi','hello'].some(x=>l.includes(x)))return'Hello! 👋 I am Angel AI by Imtiyaz. How can I help you today?';if(q.includes('مرحبا'))return'مرحبا! 👋 أنا Angel AI، كيف أساعدك؟';if(q.includes('नमस्ते'))return'नमस्ते! 👋 मैं Angel AI हूँ';if(q.includes('سلام'))return'السلام علیکم! 👋 میں Angel AI ہوں';return`You said: "${q}"\n\nI'm Angel AI by Imtiyaz. I can help with anything!`;}
+async function send(){let i=document.getElementById('inp');let q=i.value.trim();if(!q)return;let img=document.getElementById('preview').classList.contains('show')?document.getElementById('prevImg').src:null;addMsg('user',q,img);i.value='';clearPrev();chats.unshift({q,t:Date.now()});localStorage.setItem('angelChats2',JSON.stringify(chats));renderRecent();let th=addMsg('bot','Thinking... ✨');let ans=await getReply(q);try{document.getElementById('chatView').removeChild(th)}catch{}addMsg('bot',ans);}
+</script></body></html>
