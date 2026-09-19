@@ -1,111 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Angel AI - Ultimate</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angel AI - Like ChatGPT</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<style>body{font-family:sans-serif;background:#0f0f0f;color:white} .glass{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1)}</style>
+<style>
+body{background:#212121;color:#ececec;font-family:Inter,sans-serif}
+.sidebar{background:#171717}
+.chat-input-bg{background:#303030}
+.glass{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1)}
+</style>
 </head>
-<body class="min-h-screen">
-  <header class="p-4 flex justify-between items-center border-b border-gray-800">
-    <h1 class="font-bold text-xl">👼 Angel AI</h1>
-    <button id="libraryBtn" class="glass px-4 py-2 rounded-full">📚 Library</button>
-  </header>
-  <div class="max-w-4xl mx-auto p-4">
-    <div class="glass rounded-2xl p-4 mb-4">
-      <div class="flex gap-2">
-        <input id="chatInput" placeholder="Ask anything..." class="flex-1 bg-black border border-gray-700 p-3 rounded-full outline-none">
-        <button id="sendBtn" class="bg-white text-black px-6 py-3 rounded-full font-bold">Send</button>
-      </div>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      <div class="glass rounded-2xl p-4 text-center">
-        <h3 class="font-bold mb-3">📸 Image to Image</h3>
-        <input type="file" id="imageUpload" accept="image/*" class="hidden">
-        <button onclick="document.getElementById('imageUpload').click()" class="w-full bg-purple-600 py-2 rounded-full">Choose Photo</button>
-        <input id="imagePrompt" placeholder="What to create? (e.g. cartoon)" class="w-full bg-black border border-gray-700 p-2 rounded-full mt-2 text-sm outline-none">
-        <button id="generateImageBtn" class="w-full bg-pink-600 py-2 rounded-full mt-2 text-sm font-bold">✨ Generate & Save to Library</button>
-      </div>
-      <div class="glass rounded-2xl p-4">
-        <h3 class="font-bold mb-2">Result:</h3>
-        <img id="previewImage" class="w-full rounded-xl hidden mb-2">
-        <div id="chatResponse" class="text-sm text-gray-300">Answer will appear here...</div>
-        <button id="downloadBtn" class="hidden w-full mt-3 bg-green-600 py-2 rounded-full text-sm">⬇️ Download Image</button>
-      </div>
-    </div>
-  </div>
+<body class="flex h-screen overflow-hidden">
 
-<div id="libraryModal" class="fixed inset-0 bg-black/90 hidden z-50 p-4 overflow-auto">
-  <div class="max-w-4xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold">📚 Your Library</h2>
-      <button id="closeLibrary" class="glass px-4 py-2 rounded-full">X Close</button>
-    </div>
-    <div id="libraryGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+<!-- LEFT SIDEBAR LIKE CHATGPT -->
+<div id="sidebar" class="sidebar w-[260px] hidden md:flex flex-col p-3 justify-between">
+  <div>
+    <button id="newChatBtn" class="w-full flex items-center gap-2 p-3 hover:bg-white/10 rounded-lg text-sm"><span>📝</span> New Chat</button>
+    <button id="bigInstallBtn" class="w-full mt-3 bg-white text-black py-2.5 rounded-full font-bold text-sm">📥 Get The App</button>
+    <div class="mt-6 text-xs text-gray-500 px-3">Recent</div>
+    <div id="historyList" class="mt-2 space-y-1 max-h-[40vh] overflow-auto"></div>
+  </div>
+  <div class="space-y-2">
+    <button id="libraryBtn" class="w-full flex items-center gap-2 p-3 hover:bg-white/10 rounded-lg text-sm">📚 Library</button>
+    <div class="p-3 text-xs text-gray-400">👼 Angel AI<br>By Imtiyaz</div>
   </div>
 </div>
 
+<!-- MAIN CHAT AREA LIKE CHATGPT -->
+<div class="flex-1 flex flex-col bg-[#212121]">
+  <!-- TOP BAR -->
+  <header class="flex md:hidden justify-between items-center p-4 border-b border-white/10">
+    <h1 class="font-bold">👼 Angel AI</h1>
+    <div class="flex gap-2">
+      <button id="installAppBtn" class="bg-white text-black px-3 py-1.5 rounded-full text-xs font-bold">📥 Get App</button>
+      <button onclick="document.getElementById('sidebar').classList.toggle('hidden');document.getElementById('sidebar').classList.toggle('flex');document.getElementById('sidebar').classList.toggle('absolute');document.getElementById('sidebar').classList.toggle('z-50');document.getElementById('sidebar').classList.toggle('h-full')" class="glass px-3 py-1 rounded-full">☰</button>
+    </div>
+  </header>
+
+  <!-- CHAT MESSAGES -->
+  <div id="chatContainer" class="flex-1 overflow-auto p-4 md:p-8 space-y-6">
+    <div id="welcome" class="text-center mt-20">
+      <div class="text-5xl mb-4">👼</div>
+      <h1 class="text-3xl font-bold mb-2">What can I help with?</h1>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 max-w-2xl mx-auto mt-8">
+        <button class="promptBtn glass p-3 rounded-xl text-xs text-left">🖼️ Create image</button>
+        <button class="promptBtn glass p-3 rounded-xl text-xs text-left">📸 Image to Image</button>
+        <button class="promptBtn glass p-3 rounded-xl text-xs text-left">💡 Explain anything</button>
+        <button class="promptBtn glass p-3 rounded-xl text-xs text-left">✍️ Write a story</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM INPUT LIKE GEMINI -->
+  <div class="p-4 md:p-6">
+    <div class="max-w-3xl mx-auto">
+      <!-- Image to Image Row -->
+      <div class="flex gap-2 mb-3">
+        <input type="file" id="imageUpload" accept="image/*" class="hidden">
+        <button onclick="document.getElementById('imageUpload').click()" class="glass px-4 py-2 rounded-full text-xs">📎 Upload Photo</button>
+        <input id="imagePrompt" placeholder="Cartoon / 3D / etc" class="glass flex-1 px-4 py-2 rounded-full text-xs outline-none">
+        <img id="previewImage" class="hidden w-10 h-10 rounded-lg object-cover">
+      </div>
+      <!-- Main Input -->
+      <div class="chat-input-bg rounded-[28px] p-2 flex items-end gap-2">
+        <textarea id="chatInput" placeholder="Ask anything..." class="flex-1 bg-transparent outline-none resize-none px-4 py-3 text-[15px] max-h-32" rows="1"></textarea>
+        <button id="sendBtn" class="bg-white text-black w-9 h-9 rounded-full font-bold flex items-center justify-center">↑</button>
+      </div>
+      <p class="text-[11px] text-center text-gray-500 mt-2">Angel AI can make mistakes. Check important info.</p>
+    </div>
+  </div>
+</div>
+
+<!-- INSTALL MODAL -->
+<div id="installModal" class="fixed inset-0 bg-black/80 hidden z-50 p-4 flex items-center justify-center">
+  <div class="bg-[#2f2f2f] rounded-2xl p-6 max-w-sm w-full text-center">
+    <h2 class="text-xl font-bold mb-2">📥 Download Angel AI</h2>
+    <p class="text-sm text-gray-400 mb-4">Install as App like ChatGPT</p>
+    <button id="confirmInstall" class="w-full bg-white text-black py-3 rounded-full font-bold mb-3">✅ Install Now</button>
+    <div class="text-left bg-black/30 p-3 rounded-xl text-xs text-gray-400"><p>Manual: 3 dots ⋮ > Add to Home Screen > Install</p></div>
+    <button id="closeInstall" class="mt-4 text-gray-500 text-sm">Close</button>
+  </div>
+</div>
+
+<!-- LIBRARY MODAL -->
+<div id="libraryModal" class="fixed inset-0 bg-[#212121] hidden z-50 p-4 overflow-auto">
+  <div class="max-w-4xl mx-auto"><div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold">📚 Library</h2><button id="closeLibrary" class="glass px-4 py-2 rounded-full">X</button></div><div id="libraryGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div></div>
+</div>
+
 <script>
-let library = JSON.parse(localStorage.getItem('angelLibrary') || '[]');
+let deferredPrompt=null; window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e});
+function showInstall(){document.getElementById('installModal').classList.remove('hidden')}
+document.getElementById('bigInstallBtn').onclick=showInstall;
+document.getElementById('installAppBtn')?.addEventListener('click',showInstall);
+document.getElementById('closeInstall').onclick=()=>document.getElementById('installModal').classList.add('hidden');
+document.getElementById('confirmInstall').onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('installModal').classList.add('hidden')}else{alert('3 dots ⋮ > Add to Home Screen')}};
 
-document.getElementById('sendBtn').onclick = async ()=>{
-  const q = document.getElementById('chatInput').value;
-  if(!q) return;
-  document.getElementById('chatResponse').innerText = "Thinking...";
-  try{
-    const res = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&pretty=1`);
-    const data = await res.json();
-    let ans = data.AbstractText || data.RelatedTopics?.[0]?.Text || "Angel AI Answer: " + q;
-    document.getElementById('chatResponse').innerText = ans;
-    library.unshift({type:'chat', question:q, answer:ans, id:Date.now()});
-    localStorage.setItem('angelLibrary', JSON.stringify(library));
-  }catch(e){
-    document.getElementById('chatResponse').innerText = "Angel AI: " + q + " - This is a great question! I am here to help you.";
+let library=JSON.parse(localStorage.getItem('angelLibrary')||'[]');
+let chats=JSON.parse(localStorage.getItem('angelChats')||'[]');
+
+function addMessage(role,text,image=null){
+  document.getElementById('welcome')?.classList.add('hidden');
+  const div=document.createElement('div'); div.className=`flex gap-3 max-w-3xl mx-auto ${role==='user'?'justify-end':''}`;
+  if(role==='user'){
+    div.innerHTML=`<div class="bg-[#303030] px-4 py-2 rounded-2xl max-w-[80%] text-[15px]">${text} ${image?`<br><img src="${image}" class="mt-2 rounded-xl w-40">`:''}</div>`;
+  } else {
+    div.innerHTML=`<div class="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center text-xs flex-shrink-0">👼</div><div class="flex-1 text-[15px] leading-6">${text}</div>`;
   }
-};
-
-document.getElementById('imageUpload').onchange = (e)=>{
-  const file = e.target.files[0];
-  if(file){
-    const reader = new FileReader();
-    reader.onload = (ev)=>{
-      document.getElementById('previewImage').src = ev.target.result; 
-      document.getElementById('previewImage').classList.remove('hidden');
-      document.getElementById('downloadBtn').classList.remove('hidden');
-    };
-    reader.readAsDataURL(file);
-  }
-};
-
-document.getElementById('generateImageBtn').onclick = ()=>{
-  const prompt = document.getElementById('imagePrompt').value;
-  const imgSrc = document.getElementById('previewImage').src;
-  if(!imgSrc){alert('Choose photo first');return}
-  library.unshift({type:'image', prompt:prompt, image: imgSrc, id:Date.now()});
-  localStorage.setItem('angelLibrary', JSON.stringify(library));
-  alert('📚 Saved to Library!');
-  loadLibrary();
-};
-
-document.getElementById('downloadBtn').onclick = ()=>{
-  const img = document.getElementById('previewImage').src;
-  const a = document.createElement('a'); a.href = img; a.download = 'angel-ai-image.png'; a.click();
-};
-
-function loadLibrary(){
-  const grid = document.getElementById('libraryGrid');
-  grid.innerHTML = "";
-  library.forEach(item=>{
-    if(item.type=='image'){
-      grid.innerHTML += `<div class="glass rounded-xl p-2"><img src="${item.image}" class="w-full rounded-lg"><p class="text-xs mt-1">${item.prompt||''}</p><a href="${item.image}" download="angel-${item.id}.png" class="text-xs text-green-400">⬇️ Download</a></div>`;
-    } else {
-      grid.innerHTML += `<div class="glass rounded-xl p-3"><p class="text-xs font-bold">Q: ${item.question}</p><p class="text-xs text-gray-400 mt-1">${item.answer?.substring(0,100)}...</p></div>`;
-    }
-  });
+  document.getElementById('chatContainer').appendChild(div);
+  document.getElementById('chatContainer').scrollTop=document.getElementById('chatContainer').scrollHeight;
 }
-document.getElementById('libraryBtn').onclick = ()=>{document.getElementById('libraryModal').classList.remove('hidden'); loadLibrary();};
-document.getElementById('closeLibrary').onclick = ()=>document.getElementById('libraryModal').classList.add('hidden');
+
+async function handleSend(){
+  const input=document.getElementById('chatInput'); const q=input.value.trim(); if(!q) return;
+  const img=document.getElementById('previewImage').src; const hasImg=img &&!img.includes('http') && document.getElementById('previewImage').classList.contains('!block') || document.getElementById('previewImage').classList.contains('hidden')===false;
+  const imgSrc=hasImg?img:null;
+  addMessage('user',q,imgSrc);
+  input.value=''; input.style.height='auto';
+  chats.unshift({q, time:Date.now()}); localStorage.setItem('angelChats',JSON.stringify(chats)); renderHistory();
+  if(imgSrc){ library.unshift({type:'image', prompt:q, image:imgSrc, id:Date.now()}); localStorage.setItem('angelLibrary',JSON.stringify(library)); }
+  // Fake AI Answer
+  addMessage('assistant','Thinking...');
+  setTimeout(()=>{
+    const last=document.getElementById('chatContainer').lastChild; last.remove();
+    const ans=`**Angel AI Answer:**\n\n${q} - This is a great question! \n\nHere is the detailed answer about "${q}". I'm here to help you like ChatGPT & Gemini.`;
+    addMessage('assistant',ans);
+    library.unshift({type:'chat', question:q, answer:ans, id:Date.now()}); localStorage.setItem('angelLibrary',JSON.stringify(library));
+  },800);
+}
+
+document.getElementById('sendBtn').onclick=handleSend;
+document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSend()}});
+document.getElementById('chatInput').addEventListener('input',e=>{e.target.style.height='auto';e.target.style.height=e.target.scrollHeight+'px'});
+
+document.getElementById('imageUpload').onchange=e=>{
+  const file=e.target.files[0]; if(file){
+    const r=new FileReader(); r.onload=ev=>{const im=document.getElementById('previewImage'); im.src=ev.target.result; im.classList.remove('hidden'); im.classList.add('!block')}; r.readAsDataURL(file);
+  }
+};
+
+function renderHistory(){
+  const list=document.getElementById('historyList'); list.innerHTML='';
+  chats.slice(0,20).forEach(c=>{ list.innerHTML+=`<div class="p-2.5 hover:bg-white/10 rounded-lg text-xs truncate cursor-pointer">${c.q}</div>` });
+}
+renderHistory();
+document.getElementById('newChatBtn').onclick=()=>{document.getElementById('chatContainer').innerHTML=`<div class="text-center mt-20"><div class="text-5xl mb-4">👼</div><h1 class="text-3xl font-bold">What can I help with?</h1></div>`};
+
+document.getElementById('libraryBtn').onclick=()=>{
+  document.getElementById('libraryModal').classList.remove('hidden');
+  const grid=document.getElementById('libraryGrid'); grid.innerHTML='';
+  library.forEach(it=>{
+    if(it.type==='image') grid.innerHTML+=`<div class="glass rounded-xl p-2"><img src="${it.image}" class="w-full rounded-lg"><p class="text-xs mt-1">${it.prompt||''}</p></div>`;
+    else grid.innerHTML+=`<div class="glass rounded-xl p-3"><p class="text-xs font-bold">Q: ${it.question}</p><p class="text-xs text-gray-400 mt-1">${it.answer?.substring(0,100)}</p></div>`;
+  });
+};
+document.getElementById('closeLibrary').onclick=()=>document.getElementById('libraryModal').classList.add('hidden');
+document.querySelectorAll('.promptBtn').forEach(b=>b.onclick=()=>{document.getElementById('chatInput').value=b.innerText; handleSend()});
 </script>
 </body>
 </html>
