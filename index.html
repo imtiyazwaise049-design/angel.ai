@@ -3,108 +3,137 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Angel AI by Imtiyaz</title>
+<title>Angel AI</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#212121;color:#ececec;font-family:Inter,sans-serif;height:100dvh;display:flex;overflow:hidden}
-.side{width:260px;background:#171717;display:flex;flex-direction:column;flex-shrink:0}
-@media(max-width:768px){.side{position:fixed;left:-260px;top:0;height:100dvh;z-index:200;transition:0.3s}.side.open{left:0}}
-.main{flex:1;display:flex;flex-direction:column;min-width:0;height:100dvh}
-.topbar{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#212121;border-bottom:1px solid #2f2f2f;flex-shrink:0}
-.m-btn{font-size:24px;cursor:pointer}
-.model b{background:linear-gradient(90deg,#ff6ec7,#a86bff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.chat{flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding-bottom:110px}
-.inner{width:100%;max-width:768px;padding:20px 16px;display:flex;flex-direction:column;gap:20px}
-.row{display:flex;gap:10px;width:100%}.row.user{justify-content:flex-end}
-.bub{font-size:15px;line-height:1.6;white-space:pre-wrap;word-break:break-word;max-width:85%}
-.user .bub{background:#2f2f2f;padding:10px 16px;border-radius:20px}
-.bot .bub{color:#ececec}
-.av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff6ec7,#a86bff);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.img{width:100%;max-width:380px;border-radius:12px;margin-top:10px;border:1px solid #333}
-.welcome{text-align:center;width:100%;margin-top:30px}
-.welcome h1{font-size:26px;margin-bottom:18px}
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:500px;margin:0 auto;text-align:left}
-.card{border:1px solid #333;padding:14px;border-radius:12px;cursor:pointer;background:#1e1e1e}.card:hover{background:#2f2f2f}
-.card b{font-size:14px}.card span{color:#888;font-size:12px;display:block;margin-top:4px}
-.input-wrap{position:fixed;bottom:0;left:0;right:0;background:#212121;padding:12px;display:flex;justify-content:center;z-index:50;border-top:1px solid #2f2f2f}
-@media(min-width:769px){.input-wrap{left:260px}}
-.box{width:100%;max-width:768px;background:#2f2f2f;border-radius:26px;display:flex;align-items:center;padding:6px 8px 6px 16px;gap:8px;border:1px solid #444}
-.box textarea{background:transparent;border:0;color:#fff;flex:1;outline:none;resize:none;font-size:16px;padding:8px 0;font-family:inherit}
-.send{width:32px;height:32px;border-radius:50%;background:#fff;color:#000;border:0;display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:150;display:none}.overlay.show{display:block}
+body{background:#000;color:#fff;font-family:Inter,sans-serif;height:100dvh;display:flex;overflow:hidden}
+.side{width:300px;background:#000;display:flex;flex-direction:column;flex-shrink:0;border-right:1px solid #222;position:fixed;left:-300px;top:0;height:100dvh;z-index:200;transition:0.25s}
+.side.open{left:0}
+.s-top{padding:18px}
+.new{display:flex;align-items:center;gap:12px;font-size:17px;font-weight:500;padding:10px 4px;cursor:pointer}
+.div{height:1px;background:#222;margin:10px 0}
+.menu{padding:8px 16px}
+.menu div{padding:14px 4px;font-size:16px;color:#fff;cursor:pointer}
+.s-bot{margin-top:auto;padding:18px;background:#111}
+.s-bot p{font-size:13px;color:#aaa;line-height:1.4;margin-bottom:14px}
+.login{width:100%;background:#fff;color:#000;border:0;padding:12px;border-radius:24px;font-weight:600;font-size:14px}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;height:100dvh;background:#000;margin-left:0}
+.top{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:#000;flex-shrink:0}
+.circle{width:38px;height:38px;border-radius:50%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid #2a2a2a}
+.top b{font-size:17px;font-weight:500}
+.login2{background:#fff;color:#000;border:0;padding:8px 18px;border-radius:20px;font-weight:600;font-size:14px}
+.center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.center h1{font-size:30px;font-weight:400;margin-bottom:30px;text-align:center}
+.chat{flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:20px 12px 120px}
+.inner{width:100%;max-width:750px;display:flex;flex-direction:column;gap:18px}
+.row{display:flex;width:100%}.row.user{justify-content:flex-end}
+.ubub{background:#1e3a5f;background:#2a3f5f;background:#0f4c75;background:#1a365d;padding:12px 18px;border-radius:20px;max-width:70%;font-size:15px}
+.bbub{font-size:15.5px;line-height:1.6;padding:6px 2px}
+.plus-menu{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);width:90%;max-width:400px;background:#1e1e1e;border-radius:16px;padding:10px;z-index:80;display:none;border:1px solid #333}
+.plus-menu.show{display:block}
+.pm-item{display:flex;align-items:center;gap:12px;padding:14px;border-radius:10px;cursor:pointer}
+.pm-item:hover{background:#2a2a2a}
+.input-wrap{position:fixed;bottom:0;left:0;right:0;background:#000;padding:12px 12px 18px;display:flex;justify-content:center;z-index:60}
+.box{width:100%;max-width:760px;background:#1e1e1e;background:#212121;border-radius:28px;display:flex;align-items:center;padding:6px 8px 6px 14px;gap:8px;border:1px solid #333}
+.box input{background:transparent;border:0;color:#fff;flex:1;outline:none;font-size:16px;padding:10px 4px}
+.icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.send{background:#fff;color:#000}
+.plus{background:transparent;color:#aaa;font-size:24px}
+.mic{color:#aaa}
+.stop{background:#3b82f6;color:#fff}
+.img{width:100%;max-width:380px;border-radius:12px;margin-top:10px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:150;display:none}.overlay.show{display:block}
+@media(min-width:769px){.side{position:relative;left:0}.main{margin-left:0}.side.open{left:0}}
 </style>
 </head>
 <body>
 <div class="overlay" id="ov" onclick="toggleSide()"></div>
 <div class="side" id="side">
-<div style="padding:14px"><button onclick="location.reload()" style="width:100%;background:#2f2f2f;border:0;color:#fff;padding:10px;border-radius:8px">＋ New chat</button><div style="padding:12px 4px;font-weight:700">👼 <b style="background:linear-gradient(90deg,#ff6ec7,#a86bff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">angel.ai</b> <small style="color:#666;font-size:10px">by Imtiyaz</small></div></div>
-<div style="flex:1;padding:10px"><div style="font-size:11px;color:#666;padding:8px">Ready</div><div style="padding:8px;color:#22c55e;font-size:12px">✅ New API Connected</div></div>
-<div style="padding:12px;border-top:1px solid #2f2f2f"><button style="width:100%;background:#fff;color:#000;border:0;padding:10px;border-radius:20px;font-weight:700" onclick="alert('Add to Home Screen')">⬇ Get App</button></div>
+<div class="s-top"><div class="new" onclick="location.reload()"> <span style="font-size:20px">📝</span> New chat</div></div><div class="div"></div>
+<div class="menu"><div>Terms</div><div>Privacy</div><div>Settings</div></div>
+<div class="s-bot"><p>Save your chat history, share chats, and personalize your experience.</p><button class="login">Log in or sign up</button></div>
 </div>
+
 <div class="main">
-<div class="topbar"><div style="display:flex;align-items:center;gap:12px"><span class="m-btn" onclick="toggleSide()">☰</span><span class="model"><b>angel.ai</b> by Imtiyaz</span></div></div>
-<div class="chat" id="chat"><div class="inner" id="inner"></div></div>
-<div class="input-wrap"><div class="box"><textarea id="inp" rows="1" placeholder="Message Angel AI..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"></textarea><button class="send" id="sBtn" onclick="send()">↑</button></div></div>
+<div class="top">
+<div style="display:flex;align-items:center;gap:10px"><div class="circle" onclick="toggleSide()">☰</div><b>ChatGPT</b></div>
+<button class="login2">Log in</button>
 </div>
+
+<div class="chat" id="chat">
+<div class="inner" id="inner">
+<div class="center" id="welcome"><h1>Where should we start?</h1></div>
+</div>
+</div>
+
+<div class="plus-menu" id="pMenu">
+<div class="pm-item" onclick="alert('Camera coming soon');togglePlus()">📷 Camera</div>
+<div class="pm-item" onclick="alert('Photos - select image to create DP');q('create sad boy dp');togglePlus()">🖼️ Photos</div>
+<div class="pm-item" onclick="alert('Files coming soon');togglePlus()">📁 Files</div>
+<div class="pm-item" onclick="alert('Plugins coming soon');togglePlus()">🔌 Plugins</div>
+</div>
+
+<div class="input-wrap">
+<div class="box">
+<div class="icon plus" onclick="togglePlus()">＋</div>
+<input id="inp" placeholder="Ask ChatGPT" onkeydown="if(event.key==='Enter')send()" />
+<div class="icon mic" onclick="startVoice()">🎤</div>
+<div class="icon send" id="sendBtn" onclick="send()">↑</div>
+</div>
+</div>
+</div>
+
 <script>
-let inner=document.getElementById('inner'),inp=document.getElementById('inp');
+let inner=document.getElementById('inner'),inp=document.getElementById('inp'),welcome=document.getElementById('welcome');
 function toggleSide(){side.classList.toggle('open');ov.classList.toggle('show')}
-function q(t){inp.value=t;send()}
+function togglePlus(){pMenu.classList.toggle('show')}
+function q(t){inp.value=t;send();}
 
 async function getAI(text){
-  // Image first
-  if(/create|dp|picture|sad boy|attitude|bana|generate/i.test(text)){
-    let c=text.replace(/create|picture|dp|bana|generate|image|photo/g,'').trim()||'sad boy';
-    let f=encodeURIComponent(c+', whatsapp dp, 4k aesthetic portrait');
+  if(/create|dp|sad boy|attitude|bana|photo|picture|image/i.test(text)){
+    let c=text.replace(/create|dp|bana|picture|image|photo/g,'').trim()||'sad boy';
+    let f=encodeURIComponent(c+', whatsapp dp, 4k aesthetic');
     let s=Math.floor(Math.random()*99999);
-    return `<b>${c}</b> DP 👇<br><img src="https://image.pollinations.ai/prompt/${f}?width=768&height=768&seed=${s}&nologo=true" class="img">`;
+    return {html:`<b>${c}</b><br><img src="https://image.pollinations.ai/prompt/${f}?width=768&height=768&seed=${s}&nologo=true" class="img">`};
   }
   try{
-    // NEW WORKING API - NO MORE ENOSPC!
-    let lang = /[اآء-ی]|kasay|kese|kya|haal|ap\b/.test(text.toLowerCase()) ? 'Urdu/Hindi mix roman' : 'English';
-    let system = `You are Angel AI by Imtiyaz. Reply in ${lang}. User speaks ${lang} so reply in same. Friendly, helpful, short. Family friendly only.`;
-    let resp = await fetch('https://text.pollinations.ai/openai',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'openai',
-        messages:[{role:'system',content:system},{role:'user',content:text}],
-        stream:false
-      })
-    });
-    let data = await resp.json();
-    let ans = data.choices?.[0]?.message?.content || data.content || '';
-    if(ans) return ans.replace(/\n/g,'<br>');
-    throw 'no ans';
+    let lang = /[اآء-ی]|kasay|kese|kya|haal/.test(text.toLowerCase())?'Urdu roman':'English';
+    let sys=`You are ChatGPT clone Angel AI by Imtiyaz. Reply in ${lang}. Helpful friendly.`;
+    let r=await fetch('https://text.pollinations.ai/openai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'openai',messages:[{role:'system',content:sys},{role:'user',content:text}]})});
+    let d=await r.json(); let a=d.choices?.[0]?.message?.content;
+    if(a) return {html:a.replace(/\n/g,'<br>')};
+    throw '';
   }catch(e){
-    // Fallback smart
-    let l=text.toLowerCase();
-    if(l.includes('how are you')) return "I'm doing great, thank you for asking! 😊 How are you doing today? Alhamdulillah I'm fine!";
-    if(l.includes('kasay ho')||l.includes('kese ho')) return "Mai bilkul theek hu, Alhamdulillah! 💜 Aap sunao, aap kaise ho?";
-    if(l.includes('weather') && l.includes('uae')) return "Today in UAE (Abu Dhabi/Dubai): 32-38°C, humid, partly cloudy. Evening is pleasant. Stay hydrated! 💧";
-    if(l.includes('salam')) return "Walaikum Salam! 👋 Kese ho aap?";
-    if(l.includes('sad')||l.includes('udas')) return "I'm here for you 💜 You're not alone. Want to talk about it?";
-    return `You said: "${text}" - I'm Angel AI by Imtiyaz! I can chat, create DPs, help with anything. Ask me weather, jokes, motivation! 😊`;
+    return {html:text.toLowerCase().includes('how are you')?"Hi! 👋 How can I help you today?":"Hi! 👋 How can I help you today?<br><br>You said: "+text};
   }
 }
 function add(role,html){
+  if(welcome) welcome.style.display='none';
   let r=document.createElement('div');r.className='row '+role;
-  if(role==='user') r.innerHTML=`<div class="bub">${html.replace(/</g,'&lt;')}</div>`;
-  else r.innerHTML=`<div class="av">👼</div><div class="bub">${html}</div>`;
+  if(role==='user') r.innerHTML=`<div class="ubub">${html.replace(/</g,'&lt;')}</div>`;
+  else r.innerHTML=`<div class="bbub">Hi! 👋 How can I help you today?<br><br>${html}</div>`.replace('Hi! 👋 How can I help you today?<br><br>Hi! 👋 How can I help you today?','Hi! 👋 How can I help you today?');
+  if(role==='bot' && html.includes('Hi! 👋 How can I help you today?')){
+    // avoid double
+    r.innerHTML=`<div class="bbub">${html}</div>`;
+  }
   inner.appendChild(r); document.getElementById('chat').scrollTop=999999;
 }
 async function send(){
   let t=inp.value.trim();if(!t)return;
-  add('user',t); inp.value='';
-  document.querySelector('.welcome')?.remove();
-  let typ=document.createElement('div');typ.className='row bot';typ.id='typ';typ.innerHTML=`<div class="av">👼</div><div class="bub" style="color:#888">Thinking...</div>`; inner.appendChild(typ);
-  sBtn.disabled=true;
-  let ans = await getAI(t);
+  pMenu.classList.remove('show');
+  let r=document.createElement('div');r.className='row user';r.innerHTML=`<div class="ubub">${t.replace(/</g,'&lt;')}</div>`; if(welcome) welcome.style.display='none'; inner.appendChild(r); inp.value='';
+  let typ=document.createElement('div');typ.className='row bot';typ.id='typ';typ.innerHTML=`<div class="bbub" style="color:#888">...</div>`; inner.appendChild(typ);
+  let ans=await getAI(t);
   document.getElementById('typ')?.remove();
-  add('bot',ans);
-  sBtn.disabled=false; inp.focus();
+  // For first Hi message like screenshot
+  if(t.toLowerCase()==='hi'){
+    add('bot','Hi! 👋 How can I help you today?');
+  } else {
+    let bot=document.createElement('div');bot.className='row bot';bot.innerHTML=`<div class="bbub">${ans.html}</div>`; inner.appendChild(bot);
+  }
+  document.getElementById('chat').scrollTop=999999;
 }
-inner.innerHTML=`<div class="welcome"><h1>What can I help with?</h1><div class="cards"><div class="card" onclick="q('weather in UAE today')"><b>Weather in UAE today</b><span>Real AI</span></div><div class="card" onclick="q('create sad boy dp')"><b>Create sad boy DP</b><span>Image</span></div><div class="card" onclick="q('how are you')"><b>How are you?</b><span>English</span></div><div class="card" onclick="q('kasay ho ap')"><b>Kasay ho ap?</b><span>Urdu</span></div></div><div style="margin-top:16px;color:#22c55e;font-size:12px;font-weight:700">✅ NEW API - No more error!</div></div>`;
+function startVoice(){alert('Voice input: Hold and speak - coming soon! For now type.')}
 </script>
 </body>
 </html>
