@@ -1,27 +1,137 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Angel AI</title><style>body{margin:0;background:#0a0a0f;color:#fff;font-family:sans-serif;height:100vh;display:flex;flex-direction:column}.top{display:flex;justify-content:space-between;padding:14px;border-bottom:1px solid #222}.logo{font-weight:900;color:#ff6ec7;font-size:20px}#chat{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px}.msg{padding:12px 16px;border-radius:18px;max-width:85%;font-size:14px}.user{align-self:flex-end;background:#2d2d4a}.bot{align-self:flex-start;background:#1a1a2e;border:1px solid #2a2a45}.input{display:flex;gap:8px;padding:12px;border-top:1px solid #222}.input input{flex:1;background:#181825;border:1px solid #2a2a45;border-radius:24px;padding:12px 16px;color:#fff;outline:none}.input button{background:#a86bff;border:0;color:#fff;width:44px;height:44px;border-radius:50%;font-size:18px}</style></head><body>
-<div class="top"><b class="logo">angel.ai</b><small>by Imtiyaz</small></div>
-<div id="chat"></div>
-<div class="input"><input id="inp" placeholder="Kasay ho ap likho ya create dp..."><button onclick="send()">↑</button></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Angel AI by Imtiyaz</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#212121;color:#ececec;font-family:Inter,Segoe UI,sans-serif;height:100vh;display:flex;overflow:hidden}
+.side{width:260px;background:#171717;display:flex;flex-direction:column;flex-shrink:0;transition:0.3s}
+@media(max-width:768px){.side{position:fixed;left:-260px;height:100%;z-index:100}.side.open{left:0}}
+.s-top{padding:14px}
+.new{width:100%;background:transparent;border:0;color:#ececec;padding:10px;display:flex;align-items:center;gap:10px;border-radius:8px;cursor:pointer;font-size:14px}
+.new:hover{background:#2f2f2f}
+.logo{padding:10px 14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.logo b{background:linear-gradient(90deg,#ff6ec7,#a86bff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:16px}
+.hist{flex:1;overflow:auto;padding:10px}
+.h-item{padding:10px;border-radius:8px;font-size:13px;color:#b4b4b4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.h-item:hover{background:#2f2f2f;color:#ececec}
+.s-bot{padding:12px;border-top:1px solid #2f2f2f}
+.getapp{width:100%;background:#fff;color:#000;border:0;padding:10px;border-radius:20px;font-weight:700;font-size:13px;cursor:pointer}
+.main{flex:1;display:flex;flex-direction:column;background:#212121;min-width:0}
+.topbar{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:0;flex-shrink:0}
+.m-btn{display:none;font-size:22px;cursor:pointer}@media(max-width:768px){.m-btn{display:block}}
+.model{font-weight:600;font-size:16px}
+.chat{flex:1;overflow:auto;display:flex;flex-direction:column;align-items:center}
+.inner{width:100%;max-width:768px;padding:20px 16px;display:flex;flex-direction:column;gap:20px}
+.row{display:flex;gap:12px;width:100%}
+.row.user{justify-content:flex-end}
+.bub{padding:0;font-size:16px;line-height:1.6;max-width:100%;white-space:pre-wrap;word-break:break-word}
+.user .bub{background:#2f2f2f;padding:10px 18px;border-radius:20px;max-width:75%}
+.bot .bub{color:#ececec}
+.av{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px}
+.bot .av{background:linear-gradient(135deg,#ff6ec7,#a86bff)}
+.welcome{margin-top:60px;text-align:center}
+.welcome h1{font-size:28px;font-weight:600;margin-bottom:30px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:500px;margin:0 auto}
+.card{border:1px solid #333;padding:14px;border-radius:12px;text-align:left;font-size:14px;cursor:pointer;background:#2f2f2f0d}
+.card:hover{background:#2f2f2f}
+.card span{color:#8e8e8e;font-size:12px;display:block;margin-top:6px}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.opt{background:transparent;border:1px solid #444;color:#ececec;padding:6px 12px;border-radius:18px;font-size:13px;cursor:pointer}
+.opt:hover{background:#2f2f2f}
+.img{width:100%;max-width:400px;border-radius:12px;margin-top:12px;border:1px solid #333;display:block}
+.input-area{padding:14px 16px;display:flex;justify-content:center;background:#212121;flex-shrink:0}
+.box{width:100%;max-width:768px;background:#2f2f2f;border-radius:26px;display:flex;align-items:flex-end;padding:6px 8px 6px 16px;gap:8px}
+.box textarea{background:transparent;border:0;color:#fff;flex:1;outline:none;resize:none;font-size:16px;padding:8px 0;max-height:120px;font-family:inherit}
+.send{width:32px;height:32px;border-radius:50%;background:#fff;color:#000;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:700}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:90;display:none}@media(max-width:768px){.overlay.show{display:block}}
+</style>
+</head>
+<body>
+<div class="overlay" id="ov" onclick="toggleSide()"></div>
+<div class="side" id="side">
+<div class="s-top"><button class="new" onclick="location.reload()">＋ New chat</button><div class="logo"><span>👼</span><b>angel.ai</b><small style="color:#777;font-size:10px">by Imtiyaz</small></div></div>
+<div class="hist"><div style="font-size:11px;color:#666;padding:10px">Today</div><div class="h-item" onclick="q('create sad boy dp')">Create sad boy dp</div><div class="h-item" onclick="q('how are you')">How are you</div><div class="h-item" onclick="q('kasay ho ap')">Kasay ho ap</div></div>
+<div class="s-bot"><button class="getapp" onclick="alert('Add to Home Screen: Browser ⋮ > Add to Home Screen')">⬇ Get App</button><div style="font-size:10px;color:#666;margin-top:10px;text-align:center">Family Friendly • Clean • Safe</div></div>
+</div>
+<div class="main">
+<div class="topbar"><div style="display:flex;align-items:center;gap:12px"><span class="m-btn" onclick="toggleSide()">☰</span><span class="model">Angel AI by Imtiyaz</span><span style="font-size:11px;color:#777">▼</span></div><span style="font-size:13px;color:#aaa">ChatGPT Style</span></div>
+<div class="chat" id="chat"><div class="inner" id="inner"></div></div>
+<div class="input-area"><div class="box"><textarea id="inp" rows="1" placeholder="Message Angel AI..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea><button class="send" onclick="send()">↑</button></div></div>
+</div>
 <script>
-let chat=document.getElementById('chat');
-function add(t,c){let d=document.createElement('div');d.className='msg '+c;d.innerHTML=t;chat.appendChild(d);chat.scrollTop=99999;}
-function reply(q){
- let l=q.toLowerCase();
- if(l.includes('create')||l.includes('dp')||l.includes('image')||l.includes('photo')||l.includes('sad boy')||l.includes('attitude')){
-  let s=Math.floor(Math.random()*9999);
-  let p=encodeURIComponent(q+', whatsapp dp, 4k');
-  return `Here is your DP 👇<br><img src="https://image.pollinations.ai/prompt/${p}?width=512&height=512&seed=${s}" style="width:100%;max-width:300px;border-radius:12px;margin-top:8px">`;
+let inner=document.getElementById('inner'),inp=document.getElementById('inp');
+function toggleSide(){side.classList.toggle('open');ov.classList.toggle('show')}
+function q(t){inp.value=t;send()}
+function detectLang(t){
+ let l=t.toLowerCase();
+ if(/[اآء-ی]/.test(t)) return 'ur';
+ let urWords=['kasay','kese','kesy','kaisa','kesi','kya','kia','haal','haal','sunao','batao','kaise','ap','aap','tum','mai','mein','hu','hoon','theek','acha','shukria','salam'];
+ if(urWords.some(w=>l.includes(w))) return 'ur';
+ return 'en';
+}
+function imgUrl(p){
+ let c=p.replace(/can you|please|create|picture|image|dp|for me|i want|my|bana|do|generate/g,'').trim()||'sad boy';
+ let f=encodeURIComponent(c+', whatsapp dp, aesthetic, 4k, portrait');
+ let s=Math.floor(Math.random()*999999);
+ return {u:`https://image.pollinations.ai/prompt/${f}?width=768&height=768&seed=${s}&nologo=true`,c}
+}
+function getReply(t,lang){
+ let l=t.toLowerCase();
+ if(l.includes('create')||l.includes('dp')||l.includes('picture')||l.includes('image')||l.includes('photo')||l.includes('generate')||l.includes('sad boy')||l.includes('attitude')||l.includes('bana')){
+  let g=imgUrl(t);
+  if(lang==='en') return {h:`Here's your **${g.c}** DP 👇\n\n![dp](${g.u})`, html:`Here's your <b>${g.c}</b> DP 👇<br><img src="${g.u}" class="img">`, opts:["Hoodie wala sad boy","Attitude with sunglasses","Alone dark aesthetic","Anime sad boy"]};
+  else return {html:`Ye lo aapki <b>${g.c}</b> DP 👇🔥<br><img src="${g.u}" class="img"><br><br>Kaisi lagi?`, opts:["Hoodie wala sad boy","Attitude wala","Alone dark","Anime sad boy"]};
  }
- if(l.includes('kasay ho')||l.includes('kese ho')||l.includes('how are you')||l.includes('kya haal')) return "Mai bilkul theek hu! Alhamdulillah 💜 Aap sunao aap kese ho? 😊";
- if(l.includes('salam')) return "Walaikum Salam! 👋";
- if(l.includes('hi')||l.includes('hello')) return "Hello! I am Angel AI by Imtiyaz 💜";
- if(l.includes('sad')) return "I'm here for you 😔 Dil ki baat karo?";
- return `Aapne kaha: "${q}" - batao kya help chahiye?`;
+ if(l.includes('how are you')){
+  return lang==='en' ? {html:"I'm doing great, thank you for asking! 😊 How are you doing today?", opts:["I'm good","I'm feeling sad","Tell me a joke"]} : {html:"I'm doing great! 😊 Aap kaise ho?", opts:["I am good","I am sad","Can we talk?"]};
+ }
+ if(l.includes('kasay ho')||l.includes('kese ho')||l.includes('kesy ho')||l.includes('kya haal')){
+  return {html:"Mai bilkul theek hu, Alhamdulillah! 💜 Aap sunao, aap kaise ho? 😊", opts:["Mai theek hu","I am sad today","Can we talk?"]};
+ }
+ if(l.includes('salam')) return {html: lang==='en' ? "Walaikum Salam! 👋 How are you?" : "Walaikum Salam! 👋 Kese ho aap?"};
+ if(l.includes('i am sad')||l.includes('feeling sad')||l.includes('lonely')||l.includes('udas')||l.includes('sad today')){
+  return lang==='en' ? {html:"I'm really sorry you're feeling this way. You're not alone, I'm here to listen. Want to talk about what's on your mind? 💜", opts:["I want to talk","Motivate me","Create sad boy dp"]} : {html:"I'm sorry aap sad ho 😔 Aap akele nahi ho, mai yahan hu sunne ke liye. Dil ki baat karna chahte ho?", opts:["I want to talk","Motivate me","Create sad boy dp"]};
+ }
+ if(l.includes('hi')||l.includes('hello')||l.trim()==='hy'){
+  return lang==='en' ? {html:"Hello! 👋 I'm **Angel AI by Imtiyaz** - how can I help you today?"} : {html:"Hello! 👋 Mai **Angel AI by Imtiyaz** hu - bolo kya help chahiye?"};
+ }
+ if(l.includes('thank')) return {html: lang==='en' ? "You're welcome! Anytime 😊" : "Khush amdeed! Koi baat nahi 😊"};
+ // Default natural like Meta AI - NOT "Aapne kaha"
+ if(lang==='en'){
+  return {html:`Got it! You mentioned "${t}". How would you like me to help with that?`, opts:["Explain more","Create image","Give ideas"]};
+ } else {
+  return {html:`Samajh gaya! Aapne "${t}" ke bare me kaha. Isme mai aapki kaise madad kar sakta hu?`, opts:["Thoda aur batao","Image banao","Ideas do"]};
+ }
+}
+function add(role,html){
+ let r=document.createElement('div');r.className='row '+role;
+ if(role==='user'){r.innerHTML=`<div class="bub">${html.replace(/</g,'&lt;')}</div>`;}
+ else{
+  r.innerHTML=`<div class="av">👼</div><div class="bub">${html}</div>`;
+ }
+ inner.appendChild(r); document.getElementById('chat').scrollTop=999999;
+}
+function addOpt(html,opts){
+ let r=document.createElement('div');r.className='row bot';
+ let o=opts ? `<div class="opts">${opts.map(x=>`<button class="opt" onclick="q('${x.replace(/'/g,'')}')">${x}</button>`).join('')}</div>` : '';
+ r.innerHTML=`<div class="av">👼</div><div class="bub">${html}${o}</div>`;
+ inner.appendChild(r); document.getElementById('chat').scrollTop=999999;
 }
 function send(){
- let i=document.getElementById('inp');let q=i.value.trim();if(!q)return;
- add(q,'user');i.value='';
- setTimeout(()=>{add(reply(q),'bot')},600);
+ let t=inp.value.trim();if(!t)return;
+ let lang=detectLang(t);
+ add('user',t); inp.value=''; inp.style.height='auto';
+ inner.querySelector('.welcome')?.remove();
+ setTimeout(()=>{
+  let r=getReply(t,lang);
+  if(r.opts) addOpt(r.html,r.opts); else add('bot',r.html);
+ },400);
 }
-add("Hello! Mai Angel AI hu by Imtiyaz 💜<br><br>Try: <b>kasay ho ap</b> ya <b>create sad boy dp</b>","bot");
-</script></body></html>
+// Welcome like ChatGPT
+inner.innerHTML=`<div class="welcome"><h1>What can I help with?</h1><div class="cards"><div class="card" onclick="q('create sad boy dp')">Create sad boy DP for WhatsApp <span>Image generation</span></div><div class="card" onclick="q('how are you')">How are you? <span>English chat</span></div><div class="card" onclick="q('kasay ho ap')">Kasay ho ap? <span>Urdu chat</span></div><div class="card" onclick="q('I am feeling sad today')">I'm feeling sad today <span>Supportive chat</span></div></div></div>`;
+</script>
+</body>
+</html>
