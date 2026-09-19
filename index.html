@@ -5,110 +5,50 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Angel AI - Ultimate</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 <style>body{font-family:sans-serif;background:#0f0f0f;color:white} .glass{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1)}</style>
 </head>
 <body class="min-h-screen">
-<div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
-  <div class="glass rounded-3xl p-8 w-full max-w-md text-center">
-    <h1 class="text-4xl font-bold mb-2">👼 Angel AI</h1>
-    <p class="text-gray-400 mb-8">Answer to Every Question</p>
-    <button id="googleLogin" class="w-full bg-white text-black py-3 rounded-full font-bold mb-4">🔐 Login with Gmail</button>
-    <div class="my-4 text-gray-500">OR</div>
-    <input id="phoneNumber" placeholder="+971 544 825 007" value="+971544825007" class="w-full bg-black border border-gray-700 p-3 rounded-full mb-3 text-center">
-    <div id="recaptcha"></div>
-    <button id="phoneLogin" class="w-full bg-blue-600 py-3 rounded-full font-bold">📱 Send OTP</button>
-    <input id="otpCode" placeholder="Enter OTP" class="w-full bg-black border border-gray-700 p-3 rounded-full mt-3 text-center hidden">
-    <button id="verifyOtp" class="w-full bg-green-600 py-3 rounded-full font-bold mt-3 hidden">✅ Verify & Login</button>
-    <p class="text-xs text-gray-500 mt-4">protected by reCAPTCHA</p>
-  </div>
-</div>
-<div id="mainApp" class="hidden">
   <header class="p-4 flex justify-between items-center border-b border-gray-800">
-    <h1 class="font-bold">👼 Angel AI</h1>
-    <div class="flex gap-3">
-      <button id="libraryBtn" class="glass px-4 py-2 rounded-full">📚 Library</button>
-      <button id="logoutBtn" class="text-red-400">Logout</button>
-    </div>
+    <h1 class="font-bold text-xl">👼 Angel AI</h1>
+    <button id="libraryBtn" class="glass px-4 py-2 rounded-full">📚 Library</button>
   </header>
   <div class="max-w-4xl mx-auto p-4">
     <div class="glass rounded-2xl p-4 mb-4">
       <div class="flex gap-2">
-        <input id="chatInput" placeholder="Ask anything..." class="flex-1 bg-black border border-gray-700 p-3 rounded-full">
+        <input id="chatInput" placeholder="Ask anything..." class="flex-1 bg-black border border-gray-700 p-3 rounded-full outline-none">
         <button id="sendBtn" class="bg-white text-black px-6 py-3 rounded-full font-bold">Send</button>
       </div>
     </div>
-    <div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <div class="glass rounded-2xl p-4 text-center">
         <h3 class="font-bold mb-3">📸 Image to Image</h3>
         <input type="file" id="imageUpload" accept="image/*" class="hidden">
         <button onclick="document.getElementById('imageUpload').click()" class="w-full bg-purple-600 py-2 rounded-full">Choose Photo</button>
-        <input id="imagePrompt" placeholder="What to create?" class="w-full bg-black border border-gray-700 p-2 rounded-full mt-2 text-sm">
-        <button id="generateImageBtn" class="w-full bg-pink-600 py-2 rounded-full mt-2 text-sm">✨ Generate & Save to Library</button>
+        <input id="imagePrompt" placeholder="What to create? (e.g. cartoon)" class="w-full bg-black border border-gray-700 p-2 rounded-full mt-2 text-sm outline-none">
+        <button id="generateImageBtn" class="w-full bg-pink-600 py-2 rounded-full mt-2 text-sm font-bold">✨ Generate & Save to Library</button>
       </div>
       <div class="glass rounded-2xl p-4">
         <h3 class="font-bold mb-2">Result:</h3>
-        <img id="previewImage" class="w-full rounded-xl hidden">
+        <img id="previewImage" class="w-full rounded-xl hidden mb-2">
         <div id="chatResponse" class="text-sm text-gray-300">Answer will appear here...</div>
+        <button id="downloadBtn" class="hidden w-full mt-3 bg-green-600 py-2 rounded-full text-sm">⬇️ Download Image</button>
       </div>
     </div>
   </div>
-</div>
+
 <div id="libraryModal" class="fixed inset-0 bg-black/90 hidden z-50 p-4 overflow-auto">
   <div class="max-w-4xl mx-auto">
     <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold">📚 Your Library - Never Deleted</h2>
+      <h2 class="text-2xl font-bold">📚 Your Library</h2>
       <button id="closeLibrary" class="glass px-4 py-2 rounded-full">X Close</button>
     </div>
     <div id="libraryGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
   </div>
 </div>
+
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAvkIzeVpFKRcBgUvaZ4qBR8F_2HSH5nZs",
-  authDomain: "angel-ai-fa2d7.firebaseapp.com",
-  projectId: "angel-ai-fa2d7",
-  storageBucket: "angel-ai-fa2d7.firebasestorage.app",
-  messagingSenderId: "701499282972",
-  appId: "1:701499282972:web:1529fa74f91b4548be71d9"
-};
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-let currentUser = null;
-auth.onAuthStateChanged(async (user)=>{
-  if(user){
-    currentUser = user;
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('mainApp').classList.remove('hidden');
-    loadLibrary();
-  } else {
-    document.getElementById('loginScreen').classList.remove('hidden');
-    document.getElementById('mainApp').classList.add('hidden');
-  }
-});
-document.getElementById('googleLogin').onclick = async ()=>{
-  const provider = new firebase.auth.GoogleAuthProvider();
-  try{ await auth.signInWithPopup(provider);}catch(e){alert(e.message)}
-};
-window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha', {'size':'invisible'});
-document.getElementById('phoneLogin').onclick = async ()=>{
-  const phone = document.getElementById('phoneNumber').value;
-  if(!phone.startsWith('+')){alert('Write number with +971');return}
-  try{
-    window.confirmationResult = await auth.signInWithPhoneNumber(phone, window.recaptchaVerifier);
-    alert('OTP Sent!');
-    document.getElementById('otpCode').classList.remove('hidden');
-    document.getElementById('verifyOtp').classList.remove('hidden');
-  }catch(e){alert(e.message)}
-};
-document.getElementById('verifyOtp').onclick = async ()=>{
-  const code = document.getElementById('otpCode').value;
-  try{ await window.confirmationResult.confirm(code);}catch(e){alert('Wrong OTP')}
-};
-document.getElementById('logoutBtn').onclick = ()=>auth.signOut();
+let library = JSON.parse(localStorage.getItem('angelLibrary') || '[]');
+
 document.getElementById('sendBtn').onclick = async ()=>{
   const q = document.getElementById('chatInput').value;
   if(!q) return;
@@ -116,49 +56,51 @@ document.getElementById('sendBtn').onclick = async ()=>{
   try{
     const res = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&pretty=1`);
     const data = await res.json();
-    let ans = data.AbstractText || data.RelatedTopics?.[0]?.Text || "Angel AI Answer: " + q + " - This is a great question!";
+    let ans = data.AbstractText || data.RelatedTopics?.[0]?.Text || "Angel AI Answer: " + q;
     document.getElementById('chatResponse').innerText = ans;
-    if(currentUser){
-      await db.collection('users').doc(currentUser.uid).collection('library').add({type:'chat', question:q, answer:ans, timestamp: firebase.firestore.FieldValue.serverTimestamp()});
-      loadLibrary();
-    }
+    library.unshift({type:'chat', question:q, answer:ans, id:Date.now()});
+    localStorage.setItem('angelLibrary', JSON.stringify(library));
   }catch(e){
-    document.getElementById('chatResponse').innerText = "My Answer: " + q + " - This is an excellent question! Angel AI is always here to help you!";
+    document.getElementById('chatResponse').innerText = "Angel AI: " + q + " - This is a great question! I am here to help you.";
   }
 };
+
 document.getElementById('imageUpload').onchange = (e)=>{
   const file = e.target.files[0];
   if(file){
     const reader = new FileReader();
-    reader.onload = (ev)=>{document.getElementById('previewImage').src = ev.target.result; document.getElementById('previewImage').classList.remove('hidden');};
+    reader.onload = (ev)=>{
+      document.getElementById('previewImage').src = ev.target.result; 
+      document.getElementById('previewImage').classList.remove('hidden');
+      document.getElementById('downloadBtn').classList.remove('hidden');
+    };
     reader.readAsDataURL(file);
   }
 };
-document.getElementById('generateImageBtn').onclick = async ()=>{
+
+document.getElementById('generateImageBtn').onclick = ()=>{
   const prompt = document.getElementById('imagePrompt').value;
   const imgSrc = document.getElementById('previewImage').src;
-  if(!imgSrc || imgSrc=="" ){alert('Choose photo first');return}
-  if(!currentUser){alert('Please login');return}
-  document.getElementById('chatResponse').innerText = "Saving to Library...";
-  try{
-    await db.collection('users').doc(currentUser.uid).collection('library').add({
-      type:'image', prompt:prompt, image: imgSrc, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    alert('📚 Saved to Library! Will never be deleted!');
-    loadLibrary();
-  }catch(e){alert(e.message)}
+  if(!imgSrc){alert('Choose photo first');return}
+  library.unshift({type:'image', prompt:prompt, image: imgSrc, id:Date.now()});
+  localStorage.setItem('angelLibrary', JSON.stringify(library));
+  alert('📚 Saved to Library!');
+  loadLibrary();
 };
-async function loadLibrary(){
-  if(!currentUser) return;
-  const snap = await db.collection('users').doc(currentUser.uid).collection('library').orderBy('timestamp','desc').get();
+
+document.getElementById('downloadBtn').onclick = ()=>{
+  const img = document.getElementById('previewImage').src;
+  const a = document.createElement('a'); a.href = img; a.download = 'angel-ai-image.png'; a.click();
+};
+
+function loadLibrary(){
   const grid = document.getElementById('libraryGrid');
   grid.innerHTML = "";
-  snap.forEach(doc=>{
-    const d = doc.data();
-    if(d.type=='image'){
-      grid.innerHTML += `<div class="glass rounded-xl p-2"><img src="${d.image}" class="w-full rounded-lg"><p class="text-xs mt-1">${d.prompt||''}</p></div>`;
+  library.forEach(item=>{
+    if(item.type=='image'){
+      grid.innerHTML += `<div class="glass rounded-xl p-2"><img src="${item.image}" class="w-full rounded-lg"><p class="text-xs mt-1">${item.prompt||''}</p><a href="${item.image}" download="angel-${item.id}.png" class="text-xs text-green-400">⬇️ Download</a></div>`;
     } else {
-      grid.innerHTML += `<div class="glass rounded-xl p-3"><p class="text-xs font-bold">Q: ${d.question}</p><p class="text-xs text-gray-400 mt-1">${d.answer?.substring(0,100)}...</p></div>`;
+      grid.innerHTML += `<div class="glass rounded-xl p-3"><p class="text-xs font-bold">Q: ${item.question}</p><p class="text-xs text-gray-400 mt-1">${item.answer?.substring(0,100)}...</p></div>`;
     }
   });
 }
